@@ -1,0 +1,179 @@
+---
+title: "Distribution and Trend on Australia Exports"
+author: "Hongmei Zhang"
+date: "2023-06-16"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(shiny)
+library(plotly)
+library(flexdashboard)
+library(ggplot2)
+library(scales)
+library(tidyverse)
+library(maps)
+library(ggthemes)
+library(viridis)
+library(plotly)
+library(dplyr)
+library(readxl)
+
+#Import the dataset.
+df.export <- readxl::read_xlsx("data/Australia Goods and Services Export.xlsx")
+
+# Reset the format of export data and set up a new database df_countries. 
+df_countries <- df.export %>% pivot_longer(!Country,names_to ="year", values_to ="value") %>%
+  mutate(year = as.numeric(year))
+
+# Impute missing values in value with their mean
+df_countries<- df_countries %>%
+  mutate(value = ifelse(is.na(value), mean_value, value))
+
+df_7countries <- df_countries%>% 
+  filter(Country %in% c("Republic of Korea","China","India","Japan","New Zealand","United Kingdom", "United States")) %>%
+  select(c(Country,year, value))
+
+df_7countries <- df_7countries%>% 
+  mutate(Country=recode(Country, 
+                        "United States"="USA", 
+                        "United Kingdom"="UK",
+                        "Republic of Korea"="Korea",
+                        "New Zealand"="NewZealand"))
+
+```
+
+
+
+## Top 7 Countries in Australia Exports
+
+
+
+```{r eruptions, echo=FALSE}
+# Define the UI for the Shiny app
+ui <- shinyUI(
+  navbarPage("Australia Exports Dashboard",
+    # Description
+    tabPanel("Description",
+      fluidPage(
+        h2("Welcome to Australia Exports Dashboard!"),
+        p("This dashboard is to display the distribution and trend of Australia exports on goods and services based on graphic visualization. The dataset in this dashboard contains detailed information on Australia’s annual goods and services trade with the world from 1987 to 2021. The data is downloaded from the website of The Department of Foreign Affairs and Trade (DFAT) in Australia, which include 8050 observations and 230 variables. "),
+        p("With the development of globalization, Australia trades with 230 countries, the top 7 countries export value are accounted for about two-thirds of the total. The trade in Australia is linked with fast growing economies as their strategies on reduction of trade barriers and signed trade agreements with developing countries. The major export destinations are focused on these seven countries, which accounted for about 70.07% of total share of market in 2021. "),
+        p("The data is from the website of The Department of Foreign Affairs and Trade (DFAT) in Australia. It did not include any personal information and informed consent and the website did not mention any restrictions on usage and sharing. The only concern is data accuracy and bias during the collection of data. In this dashboard, it is assumed that the data is accurate and representative the real exports value in Australia."),
+        p("The export value for 230 countries is from 0 to 188,897 million Australia dollars. The largest export value is China in 2021. which shows in the line graph of export.The top 7 countries are China, Japan, Korea, India, New Zealand, United States and UK. In the line graph, it can be seen that the leading trading partner is Asia for Australia."),
+        p("We normally have three methods to handle missing values, remove rows with missing values, impute missing values with the mean, impute missing values with an estimator. In those three methods, we chose the second method to replace the missing value with the mean value in this analysis. We did not deal or remove the extreme value, such as China has triple times export value than the second largest export country Japan, it may not be appropriate to simply remove or disregard such extreme values. Instead, we need address the presence of extremes values."),
+
+       p("The export data for goods and services is one of important indicators for the economic market, which can show to us the most important market share in Australia. The data is used to analysis the trend for the exports on goods and services and provide the results of analysis to government and relative industries for their development plan. "),
+        
+      )
+    ),
+             
+    # User Instructions tab
+    tabPanel("Instructions",
+      fluidPage(
+        h2("Welcome to Australia Exports Dashboard!"),
+        p("Please follow the intructions below: "),
+        p("1. Click on the 'Analysis' tab to access the data analysis section."),
+        p("2. In the sidebar, select a country from the dropdown menu to filter the data for that specific country."),
+        p("3. Adjust the year range using the slider to focus on a specific period of time."),
+        p("4. The plot will dynamically update based on the selected country and year range."),
+        p("5. Navigate to the 'Disclaimer' tab to review the disclaimer for this analysis."),
+        p("6. If you need any further information, please visit https://rpubs.com/Mia_Zhang/1055373."),
+      )
+    ),
+     tabPanel("Disclaimer",
+      fluidPage(
+        p("The analysis should be used for practical and learning purposes only."),
+        p("Please note that the data used in this dashboard is subject to change."), 
+        p("We recommend verifying the information from official sources. "),
+        p("By using this dashboard, you acknowledge and agree to the terms of this disclaimer."),
+        
+      )
+    ),
+    # Analysis tab
+    tabPanel("Analysis",
+      fluidPage(
+        sidebarLayout(
+          sidebarPanel( # Input controls for analysis
+            selectInput("country", "Select Country:", choices = unique(df_7countries$Country)),
+            sliderInput("year_range", "Select Year Range:", min = min(df_7countries$year), max = max(df_7countries$year), value = c(min(df_7countries$year), max(df_7countries$year))),
+            
+            # Input control for prediction
+            numericInput("input_value", "Enter a future year for prediction:", value = NULL),
+            actionButton("predict_button", "Predict")
+          ),
+          
+           
+          mainPanel(
+            # Output plot
+            plotlyOutput("export_plot", height = "400px", width = "600px"),
+            
+            # Output for prediction result or model fit diagnosis
+            verbatimTextOutput("prediction_result")
+          )
+        )
+      )
+    )
+  )
+)
+
+
+
+# Define the server logic for the Shiny app
+server <- function(input, output) {
+  
+  # Create a reactive subset of the data based on the selected country and year range
+  country_data <- reactive({
+    df_7countries[df_7countries$Country == input$country & df_7countries$year >= input$year_range[1] & df_7countries$year <= input$year_range[2], ]
+  })
+  
+  
+  
+  # Render the plot based on the reactive subset of data
+  output$export_plot <- renderPlotly({
+    gg <- ggplot(country_data(), aes(x = year, y = value, color = Country)) +
+      geom_line(linewidth = 1) +
+      geom_point(size = 2) +
+      xlab("Year") +
+      ylab("Exports Value") +
+      theme(legend.title = element_blank(),
+            legend.position = 'bottom',
+            axis.title.x = element_text(size = 11, face = 'bold'),
+            axis.title.y = element_text(size = 11, face = 'bold'),
+            legend.box.background = element_rect(colour = 'black'),
+            legend.background = element_blank(),
+            axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
+      scale_x_continuous(breaks = round(seq(min(df_7countries$year), max(df_7countries$year), by = 1), 1)) +
+      labs(y = 'Exports Value', x = 'Year')
+    
+    ggplotly(gg)
+  
+  })
+
+# Perform prediction or model fit diagnosis based on the input value
+  output$prediction_result <- renderPrint({
+    req(input$predict_button)  # Triggered when the button is clicked
+    
+    # Perform prediction or model fit diagnosis based on the input value
+    input_value <- as.numeric(input$input_value)
+    if (!is.na(input_value)) {
+      # Replace with your model prediction or fit diagnosis code
+      prediction <- (input_value-2021)* 519481* 1.19
+      paste("Australia Exports Prediction:", prediction)
+    } else {
+      "Please enter a numeric value above 2021."
+    }
+  })
+}
+
+# Run the Shiny app
+shinyApp(ui = ui, server = server)
+```
+
+
+
+
+

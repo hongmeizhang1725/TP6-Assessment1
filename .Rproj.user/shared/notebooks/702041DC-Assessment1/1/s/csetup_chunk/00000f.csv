@@ -1,0 +1,9 @@
+"0","getwd()
+"
+"1","[1]"
+"1"," ""D:/Monash/Collaborative and reproducible practices/TP6-Assessment1"""
+"1","
+"
+"2","Error in exists(cacheKey, where = .rs.WorkingDataEnv, inherits = FALSE) : 
+  invalid first argument
+"

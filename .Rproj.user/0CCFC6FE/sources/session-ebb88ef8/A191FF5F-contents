@@ -1,0 +1,132 @@
+---
+title: "Assessment1"
+author: "Hongmei Zhang"
+date: "2023-11-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(scales)
+library(plotly)
+
+rm(list=ls())
+
+getwd()
+
+setwd("D:/Monash/Collaborative and reproducible practices/TP6-Assessment1")
+
+```
+
+## 1. Research question
+
+Labor shortage is currently significant challenge in global agriculture, while both land use and labor is affecting agricultural food supply. In this report, we aim to analyze the trend of agricultural land use and labor from 1961 to 2019 in 16 key agricultural countries, investigating the relationship between labor issues in agriculture and land use to understand their interdependencies and effects on global agriculture.
+
+
+## 2. Data set introduction
+
+The dataset comprises agricultural land use, labor and food supply from 1961 to 2019 for 16 major agricultural production countries, providing insights into global agricultural trends and practices.The data sets with 944 observations and 6 variables were extracted from Our World in Data [https://ourworldindata.org/grapher/agricultural-labor-land]. It is an open-source database and can be used for research and analysis purposes. 
+
+The extracted dataset has variables from countries including Australia, Brazil, Canada, China, France, Germany, India, Mexico, Netherlands, New Zealand, Russia, South Africa, South Korea, Turkey, UK, USA from 1961 to 2019. There are three numerical variables-- agricultural land use for the sum of croplands and permanent pastures for livestock grazing, agricultural labor for the number of people in agriculture, which includes hiredlabor and unpaid family labor, and agricultural food supply for the total output of agricultural products.
+
+## 3. Data set description
+
+
+```{r}
+#Import the dataset.
+data <- read.csv("agricultural_labor_land.csv")
+
+data1 <- data.frame(data)
+
+```
+
+The dataset contains `r ncol(data1)` variables and `r nrow(data1)` observations.
+The figure of the code is showing as the following.
+
+```{r, echo=FALSE, out.width='100%', out.height='100%'}
+# Display the screenshot of code
+knitr::include_graphics("Image/Screenshot.png")
+
+# Create a table with variable names for data1
+variable_names <- data.frame(Variable = names(data1))
+
+kable(variable_names, caption = "Variable Names of dataset")
+
+str(head(data1, 2))
+```
+
+
+## 4. Data Summary
+
+```{r}
+# Select 2 numerial variables and one character, calculate two summary statistics
+summary_stats <- data1 %>%
+  select(Entity, Year, ag_land_index,labor_index) %>%
+  group_by(Entity) %>%
+  summarise(
+    mean_land_use = mean(ag_land_index, na.rm = TRUE),
+    variance_land_use = var(ag_land_index, na.rm = TRUE),
+    mean_labor = mean(labor_index, na.rm = TRUE),
+    variance_labor = var(labor_index, na.rm = TRUE),
+  )
+
+kable(head(summary_stats, 10))
+
+
+```
+
+From this data summary, it can be observed that **Germany** and France have the highest mean labor values, suggesting a significant workforce in agriculture, with Germany also exhibiting the highest variance in labor, indicating large fluctuations or diversity in agricultural labor over the observed period. Additionally, New Zealand stands out with a notably high mean land use and the greatest variance in land use, which could imply extensive and varied agricultural practices in terms of land utilization.
+
+## 5. Visualisations
+
+
+
+```{r figure-plot, fig.cap="Figure 1: Total Land Use vs. Total Labor of Main Agricultural Countries from 1961 to 2019"}
+
+# Create one figure related with research question.
+long_data <- data1 %>%
+  gather(key = "Type", value = "Value", ag_land_index, labor_index)
+
+aggregated_data <- long_data %>%
+  group_by(Year, Type) %>%
+  summarise(Total = sum(Value, na.rm = TRUE))
+
+ggplot_object <- ggplot(aggregated_data, aes(x = Year, y = Total, color = Type)) +
+  geom_point() +
+  scale_x_continuous(breaks = seq(min(aggregated_data$Year), max(aggregated_data$Year), by = 5)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom") + 
+  labs(title = "Total Land Use vs. Total Labor of Main Agricultural Countries",
+       x = "Year",
+       y = "Total Value")
+
+# Convert to an interactive plot
+interactive_plot <- ggplotly(ggplot_object)
+
+# Display the plot
+interactive_plot
+
+```
+
+- *The graph depicts a significant decrease in labor, suggesting a reduction in the agricultural workforce over the observed period.Conversely, land use shows a gradual increase until 1990, after which it experiences slight fluctuations and a marginal decline.*
+- *The graph illustrates a diverging relationship between agricultural land use and labor: while land use experienced a slow increase until 1990 followed by slight fluctuations and a minor decrease, labor in agriculture showed a marked and consistent decline over the same period.*
+
+
+## 6. Conclusions
+
+The analysis of agricultural data from 1961 to 2019 for major agricultural countries reveals significant trends in land use and labor. The data shows a steady increase in land use until 1990, followed by a period of fluctuation and a slight decrease, indicating changes in agricultural practices or policy shifts over the decades. In stark contrast, there is a notable and consistent decline in labor over the same period. This divergence suggests a move towards more efficient or mechanized farming techniques that require fewer workers, a response possibly driven by technological advancements, economic factors, and policy changes in the agricultural sector.
+
+Moreover, the substantial decrease in labor, despite the initially increasing and later fluctuating land use, points to a potential restructuring in the agricultural workforce. This could be due to urban migration, changing demographic patterns, or shifts in the economic attractiveness of agricultural work. 
+
+
+
+
+
+
+

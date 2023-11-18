@@ -1,0 +1,491 @@
+---
+title: "Assessment 1: Probability, distributions, and correlation analysis"
+author: "Yuqian(Leon)"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# ITO5197 Assessment 1
+
+## Probability, Bayes Theorem, and Correlation Analysis.
+
+
+### Student Name:Hongmei Zhang
+
+### Student Number:33801630
+
+## Objectives
+This assignment assesses your understanding of basic statistics, probability, Bayes' Theorem and linear regression model, covered in Modules 1 and 2. The total marks of this assessment is __50__, including __5__ marks account for the presentation. This assessment has 20% contribution to your final score.
+
+## Part A: Probability theory [15 Marks]
+
+#### Question 1 (3 Marks): 
+Given that $P(A) = 0.55,\;P(\overline{B}) = 0.35, \text{ and } P(A \cup B) = 0.75$. Determine $P(B)$ and $P(A \cap B)$.
+
+<font color='blue'> 
+Answer A-1:
+ -- Given probabilities for A and B:
+ 
+    P(A)= 0.55
+    P(B_complement) = 0.35
+    P(A∪B) = 0.75
+    
+ -- Calculate P(B) using the complement rule:
+ 
+    P(B) = 1 - P(B_complement) = 1- 1.35 = 0.65
+    
+ -- Calculate P(A∩B) using the inclusion-exclusion principle:
+ 
+    P(A∩B) = P(A) + P(B) - P(A∪B) = 0.55 +0.65 - 0.75 = 0.45
+</font>
+
+#### Question 2 (4 Marks): 
+Mr. and Mrs. Brown have two children, given that the probability of a boy or girl being born is the same and the genders of all children are independent of each other. If one child is random selected at first, and we know she is a girl. What is the probability that both children are girls?
+
+<font color='blue'>
+Answer A-2:
+ -- According the given information, we assume:
+
+    A <- The first child is a girl.  
+    B <- The second child is a girl.
+    P(B|A) <- The Probability that the second child is a girl given that the first child is a girl
+
+ -- The conditional probability formula as the following:
+
+    P(B|A) = P(B∩A) / P(A)
+    Since boys and girls are independent of each others
+    so,
+    P(A)= 1/2
+    P(B) = 1/2
+    P(B∩A) = P(B) * P(A) = 1/4 
+
+ -- Calculate P(B|A) by using conditional probability formula:
+    
+    P(B|A) = P(B∩A) / P(A) = (1/4) / (1/2) = (1/4) * (2/1) = 1/2 = 50%
+    So, the probability that both children are girls given that first child is a girl is 50%.
+</font>
+
+#### Question 3 (4 Marks): 
+Leon is marking a hard mutiple choice question. The students may answer the question correctly by guessing with a probability of 1/4. If one student have 50% chance to know the answer. What is the probability that this student indeed know the answer given his MCQ is correctly answered?
+
+<font color='blue'> 
+Answer A-3:
+ -- According the given information, we assume:
+    
+    A <- The student knows the answer.
+    B <- The student answers the question correctly.
+    P(A|B) <- the probability that the student knows the answer given that they answered correctly.
+
+ -- Given probability as per question:
+    
+    If the students know the answer, they will know answer correctly, 
+    P(B|A) = 1 
+    If the student did not know the answer, they will guess the correct answer by 1/4 chance,
+    P(B|A_complement) = 1/4
+    One student has 50% chance to know the answer:
+    P(A) = 0.50 
+    As a complement of event A,
+    P(A_complement) = 1 - P(A) = 1 - 0.50 = 0.50.
+    
+ -- The Bayes' theorem:
+
+    P(A|B) = [P(B|A) * P(A)] / P(B)
+    so,
+    P(B) = P(B|A) * P(A) + P(B|A_complement) * P(A_complement)
+
+    
+ -- Calculate P(B) by using above information:
+ 
+    P(B) = (1 * 0.50) + (1/4 * 0.50) = 0.50 + 0.125 = 0.625
+    P(A|B) = [P(B|A) * P(A)] / P(B) = (1 * 0.50) / 0.625 = 0.50 / 0.625 = 4/5 = 80%
+    So, the probability that the student knows the answer given that they answered MCQ correctly is 80%.
+</font>
+
+#### Question 4 (4 Marks): 
+A gambler has a fair coin (i.e., the coin has both the head and the tail side) and a two-tailed coin (i.e., both sides are tail) in his pocket. He selects one of the coins at random, and when he flips it, it shows tail. Then he flips the same coin a second time and again it shows tail. What is the probability that it is the two-tailed coin?
+
+<font color='blue'> 
+Answer A-4:
+ -- According the given information, we define the events:
+ 
+    A <- The coin selected is the fair coin.
+    B <- The coin selected is the two-tailed coin.
+    T <- The coin shows tails twice in the first and second flip
+    P(B|T), which is the probability that the selected coin is the two-tailed coin given that it showed tails twice.
+
+ -- Given probabilities as per question:
+    
+    The gambler selected a fair coin or a two-tailed coin in a half chance,
+    P(A) = P(B) = 1/2 
+    If chose a fair coin, the probability of getting tail twice with fair coin,
+    P(T|A) = 1/2 * 1/2 = 1/4
+    If chose a two-tailed coin, the probability of getting tail twice with two-tailed coin,
+    P(T|B) = 1
+ 
+ -- Bayes' theorem:
+
+    P(B|T) = [P(T|B) * P(B)] / P(T)
+    P(T) = P(T|A) * P(A) + P(T|B) * P(B)
+    
+ -- Calculate the  P(B|T) as above value by using Bayes:
+    
+    P(T) = 1/4 * 1/2 + 1* 1/2 = 5/8
+    P(B|T)= [P(T|B) * P(B)] / P(T) = (1* 1/2)/(5/8) = 4/5 = 80%
+    So, the probability that the selected coin is the two-tailed coin given that it showed tails twice is 80%.
+</font>
+
+## Part B: Characteristics of random variable, distributions [20 Marks]
+
+#### Question 1 (4 Marks):
+You toss 11 unfair coins where the chance of tossing a head is $0.6$. What is the combined probability of getting exactly 5 or exactly 6 heads?
+
+<font color='blue'> 
+Answer B-1:
+    The binomial probability formula is:
+
+$$P(X = k) = \binom{n}{k} \cdot p^k \cdot (1 - p)^{n - k}$$ 
+ --  According the given information, Where:
+
+   \(n\) is the total number of tossing,
+   
+   \(k\) is the number of getting heads,
+   
+   \(p\) is the probability of getting heads,
+   
+   \(\binom{n}{k}\) represents the binomial coefficient, calculated as \(\frac{n!}{k!(n-k)!}\).n is the number of coin tosses.
+   
+ -- Calculate as the given information
+    
+    n = 11
+    k = 5 or 6
+    p = 0.6
+    
+    If getting exactly 5 heads:
+    P(X = 5) = (11 choose 5) * (0.6^5) * ((1 - 0.6)^(11 - 5))
+             = (11 choose 5) * (0.6^5) * (0.4^6) ≈ 0.1032
+             
+    If getting exactly 6 heads:
+    P(X = 6) = (11 choose 6) * (0.6^6) * ((1 - 0.6)^(11 - 6))
+             = (11 choose 6) * (0.6^6) * (0.4^5) ≈ 0.1857
+             
+    Add the probabilities of 5 heads and 6 heads: 
+    P(X =5) + P(X = 6) ≈ 0.2889 = 28.89%
+    So, the combined probability of getting exactly 5 or exactly 6 heads is 28.89%.
+</font>
+
+#### Question 2 (4 Marks):
+The diameter (a continuous variable) of a certain disk follows the uniform distribution within a specific interval \([a,b]\) i.e., \(X\sim\mathcal{U}\left(a,b\right)\) with \(a=0\) and \(b=2\), find the average area of the disc.
+
+Hint: You have to make use of relationship for the Expectation and Variance. And the formula to compute the area of a disk is \(\pi r^2\)(r means radius).
+
+<font color='blue'>
+Answer B-2:
+    The Uniform Distribution formula:
+$$f(x) = \frac{1}{b - a} \text{ for } a \leq x \leq b$$
+ -- According the given information, where:
+    
+    a = 0,
+    b = 2, 
+    X ~ U(0, 2),
+    X is diameter, the radius R is the half of the diameter, so:
+    R = X / 2
+
+ -- Calculate PDF of Diameter (X):
+ 
+    The PDF of a continuous uniform distribution within the interval [0, 2] is given by:
+    f(X) = 1/(b-a) = 1/2
+
+ -- Expected Diameter (E[D]):
+
+    E[X] = (a+b)/2 = 1
+    
+    Then,
+    Expected Radius (E[R]):
+    R = X/2, so,
+    
+    E[R] = 1/2 * E[X} = 1/2
+ 
+ -- Expected Area of the Disc (E[Area]):
+  the area of a disk is \(\pi r^2\)
+    
+    E[Area] = π * {(E[R])^2} =  π * {(1/2)^2} = π * 1/4 = 0.25π
+    so, the average area of the disc is 0.25π square units.
+</font>
+
+#### Question 3 (4 Marks):
+Given \(K \sim N(\mu=0,\sigma^2=1)\), i.e, \(K\) is Gaussian distributed, what's the probability that the equation \(x^2 + 2Kx +1 =0\) has real solutions? Hint: The solution to the quadratic equation $ax^2+bx+c=0$ where $a$, $b$ and $c$ are real constants and $x$ is unknown, is $x=\frac{-b\pm \sqrt{b^2-4ac}}{2a}$.
+
+<font color='blue'> 
+Answer B-3:
+ -- According the given information, where:
+    
+    a = 1,
+    b = 2k,
+    c = 1
+    Equation:  x^2 + 2Kx + 1 = 0 
+    If equation has real solutions, the discriminant (b^2 - 4ac) of the quadratic formula provided: 
+    
+ -- The discriminant is:
+  \Delta = (2K)^2 - 4*1*1 = 4K^2 - 4
+
+    If the quadratic equation to have real solutions, the discriminant must be greater than or equal to zero:
+    4K^2 - 4 ≥ 0
+    => K^2 ≥ 1
+    => |K| ≥1
+
+    Use the cumulative distribution function (CDF) of the standard normal distribution to calculate the probability:
+
+    P(|K|≥1) = 1 − P(−1≤K≤1) 
+
+ -- Calculate the probability:
+    
+    Use the cumulative distribution function (CDF) of the standard normal distribution:
+    For P(−1≤K≤1), need to find values of CDF at z= 1 and z = -1:
+    Check Z table Φ(1)≈0.8413 and Φ(-1)≈0.1587
+    => P(−1≤K≤1) = Φ(1) - Φ(-1) ≈ 0.6826
+    => P(|K|≥1) = 1 − P(−1≤K≤1) ≈ 1- 0.6826 ≈ 0.3174
+    So, the probability that equation has real solutions is 31.74%.
+</font>
+
+#### Question 4 (4 Marks):
+Given a random variable $X$ with density function
+$$
+p(x) = \begin{cases}  a+bx^2 &0 \leq x \leq 1\\  0 & \text{otherwise} \end{cases}  
+$$
+such that $E[X] = 2/3$. What's the value of a and b?
+
+<font color='blue'> 
+Answer B-4:
+ -- According the given information, we get:
+    
+    The integral of p(x) over its entire range must equal 1 as the following :
+ $$\\∫_{0}^{1} p(x)dx = 1 \\$$   
+    So, we get equation (1)
+ $$\\∫_{0}^{1} (a + bx^2) dx = 1 \\$$   
+
+Also,the given expected value E[X] is 2/3:
+$$\\E[X] = ∫_{0}^{1} xp(x)dx = 2/3 \\$$   
+so, we get equation (2)
+$$\\E[X] = ∫_{0}^{1}x(a + bx^2)dx = 2/3 \\$$  
+
+ -- To calculate the above two equation:   
+    
+    For Equation (1):
+    we can get:
+     ax +1/3* bx^3(when x=1 minus x=0)
+       = a + b/3 = 1
+      Multiple 3 with both side of equation 
+      => 3a + b = 3             ---equation (3)
+    
+    For equation (2):
+    we can get:
+     a/2* x^2 + b/4 * x^4 (when x=1 minus x=0)
+        = a/2 + b/4 = 2/3
+     Multiple 12 with both side of equation    
+      => 6a + 3b = 8           ---equation (4)
+
+ -- Continue to solve the combined equations:
+    
+    From equation (3), we get:
+    3a + b = 3 => b = 3-3a 
+    From quation (4), we get:
+    6a + 3b = 8 
+      => 6a + 3(3-3a) =8
+      => a = 1/3
+         b= 2
+    So, we get the value of a is 1/3 and the value of b is 2.
+</font>
+
+#### Question 5 (4 Marks):
+Let $X_1,X_2,\ldots,X_n$ be independent, identically distributed random variables with common mean and variance. Find the values of $c$ and $d$ that will make the following formula true:
+$$
+\mathbb{E}[(X_1+X_2+\ldots+X_n)^2] = c\;\mathbb{E}[X_1^2] + d\;\mathbb{E}[X_1]^2
+$$
+
+<font color='blue'> 
+Answer B-5:
+ -- According the given information, we get:
+    
+    X1, X2...Xn are independent, identically distributed variables
+    
+    var(X)=E[X^2]−(E[X])^2
+    
+    E[X^2]=var(X)+(E[X])^2
+ 
+ 
+ -- Calculation from the above equation:
+    
+    E[(X1+...+Xn)^2]=var(X1+...+Xn)+(E[X1+...+Xn])^2
+                    =nvar(X1)+(nE[X1])^2  (as X1, X2...Xn are independent, identically distributed variables)
+                    =nE[(X1)^2]−n(E[X1])^2+(n^2)*(E[X1])^2)
+                    =nE[(X1)^2]+(n^2-n)* (E[X1])^2
+                    =nE[(X1)^2]+n(n−1)* (E[X1])^2  = cE[(X1)^2]+d(E[X1])^2
+    
+    so, we can get the value of c and d from the above equation:                
+    c = n and d = n(n − 1)
+</font>
+
+## Part C: Correlation analysis [10 Marks]
+
+A dataset for this part is shared with you. Please provide a correlation analysis of the variables (columns) and outline your findings. <font color='red'>Please note that result visualisation is needed.</font>
+
+```{r}
+# You are free to install any required library for visualisation
+
+# If you have error that any of the above library is missing, please install it via install.packages(...) or Tools -> Install packages in RStudio
+
+library(ISLR)
+library(MASS)
+library(dplyr)
+library(stringr)
+library(corrplot)
+library(ggplot2)
+```
+
+
+```{r}
+getwd()
+setwd("D:/Monash/Statistics/Assessment 1")
+
+data = read.csv('Assessment1_data.csv')
+
+data1<-str_split_fixed(data$Marital.status.Application.mode.Application.order.Course.Daytime.evening.attendance..Previous.qualification.Previous.qualification..grade..Nacionality.Mother.s.qualification.Father.s.qualification.Mother.s.occupation.Father.s.occupation.Admission.grade.Displaced.Educational.special.needs.Debtor.Tuition.fees.up.to.date.Gender.Scholarship.holder.Age.at.enrollment.International.Curricular.units.1st.sem..credited..Curricular.units.1st.sem..enrolled..Curricular.units.1st.sem..evaluations..Curricular.units.1st.sem..approved..Curricular.units.1st.sem..grade..Curricular.units.1st.sem..without.evaluations..Curricular.units.2nd.sem..credited..Curricular.units.2nd.sem..enrolled..Curricular.units.2nd.sem..evaluations..Curricular.units.2nd.sem..approved..Curricular.units.2nd.sem..grade..Curricular.units.2nd.sem..without.evaluations..Unemployment.rate.Inflation.rate.GDP.Target, ";", 36)
+
+data1 = data.frame(data1)
+
+# There is 36 variables in data1, selected 6 variables from data1, which include:
+# Attendance; Admission grade; Tuition fee up to date; Age at enrollment; Curricular Unit 1 sem grade; Curricular unit 2 sem enrolled.
+
+selected_data <- data1[, c(5, 13, 17, 20, 26, 29)]
+# change the column name to appropriate variable name.
+colnames(selected_data) <- c("Attendance", "Admission_grade", "Tuition" ,"Age","Curricular_grade1", "Curricular_enrolled2" )
+
+# Convert the entire dataset to numeric
+df <- as.data.frame(lapply(selected_data, as.numeric))
+```
+
+```{r}
+head(df)
+str(df)
+```
+
+
+```{r}
+# Check the value of Attendance
+table(df$Attendance)
+```
+
+
+```{r}
+# Check the value of Tuition fee up to date
+table(df$Tuition)
+```
+#### (a) Obtain the basic statistical information like in Module 1 tutorial (e.g boxplot, summary, etc). Explain your observations based on your findings.[5 marks]
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+
+```{r}
+summary(df)
+
+```
+```{r}
+par(mfrow = c(2,1))
+hist(df$Curricular_enrolled)
+hist(df$Admission_grade)
+
+# IQR = 3rd Quantile - 1st Quantile
+# Outliers are determined by range(1st Quantile - 1.5*IQR, 3rd Quantile + 1.5 IQR)
+# From the following plot, the 
+```
+
+
+
+```{r}
+par(mfrow = c(1,2))
+boxplot(df$Curricular_enrolled)
+boxplot(df$Curricular_enrolled~ df$Tuition)
+```
+
+
+
+
+
+```{r}
+par(mfrow = c(1,1))
+plot(df[3:6])
+```
+
+
+```{r}
+# Assess the normality of curricular unit enrolled in sem 2
+qqnorm(df$Curricular_enrolled2)
+qqline(df$Curricular_enrolled2)
+
+```
+
+#### (b) Plotting the dataset to find associations (correlations) among variables. Present and discuss your findings from each of the plots. You can put your findings below the plots. [5 marks]
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+```{r}
+# Remove rows with 0 values in "Curricular_grade1"column.
+
+df1 <- df[df$Curricular_grade1 != 0, ]
+
+# Create a scatter plot from selected dataset
+
+plot(df1$Curricular_grade1, df1$Curricular_enrolled2, main = "Scatter Plot for grade and enrollment", xlab = "Curricular grade", ylab = "Curricular enroll", pch = 19, col = "blue")
+
+
+```
+
+
+```{r}
+cor(df[1:6])
+
+```
+
+```{r}
+
+cor_matrix <- cor(df[1:6])
+
+corrplot(cor_matrix, method = "color", type = "upper", tl.cex = 0.7)
+
+```
+
+
+
+```{r}
+# Remove rows with 0 values in "Age" and "Curricular_grade1" and " Admission_grade"
+df2 <- df[!apply(df[, c("Age", "Curricular_grade1", "Admission_grade")], 1, function(row) any(row == 0)), ]
+
+scatter_plot1 <- ggplot(df2, aes(x = Age, y = Curricular_grade1)) +
+  geom_point() +
+  labs(title = "Scatter Plot: Age vs. Curricular_grade1")
+
+# Add a linear regression line
+scatter_plot_with_line <- scatter_plot1 + geom_smooth(method = "lm", se = FALSE, color = "red")
+scatter_plot_with_line
+
+
+scatter_plot2 <- ggplot(df2, aes(x = Admission_grade, y = Curricular_grade1)) +
+  geom_point() +
+  labs(title = "Scatter Plot: Admission_grade vs. Curricular_grade1")
+# Add a linear regression line
+scatter_plot_with_line <- scatter_plot2 + geom_smooth(method = "lm", se = FALSE, color = "red")
+scatter_plot_with_line
+
+```
+
+
+```{r}
+
+
+```
+

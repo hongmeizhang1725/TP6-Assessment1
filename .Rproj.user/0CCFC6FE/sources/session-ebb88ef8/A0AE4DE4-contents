@@ -1,0 +1,239 @@
+---
+title: "Assessment 2: Parameter estimation, confidence interval, hypothesis testing and data mining models"
+author: "Yuqian(Leon)"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+### Student Name:Hongmei Zhang
+
+### Student Number:
+
+## Objectives
+This assignment assesses your understanding of Confidence Interval, Hypothesis Testing, and Data Mining Models, covered in Weeks 3 to 5. The total marks of this assessment is __80__,including __5__ marks account for the presentation. This assessment has 30% contribution to your final score.
+
+
+## Important Note
+* You can complete your assignment using the codes shared in the unit (i.e. Alexandria, video, practical activities on Moodle) and this template as the bases. However, <font color='red'>**you should make sure the codes you are using are correct and relevant to the question**</font>.
+
+* Please follow the structure of this template as much as you can.
+
+* You can use the pre-populated codes cells or change them if you prefer. However, please <font color='red'>**do not change the name of the key variables, functions, and parameters**</font>. It helps us to read and understand your submission more efficiently.
+
+* Submit your source code file in R notebook (this file with your answers) and a preview file (HTML or PDF). If the marker has problems to run your source codes, the preview file will be helpful. 
+
+
+\newpage
+
+## Part 1: Point Estimation [10 marks]
+
+#### Question 1: (10 Marks)
+Suppose that we know that a random variable $X$ follows the distribution given below:
+
+$$
+\text{PDF}\left(X=x|\theta\right)= \frac{{2 \choose x}\theta^x\left(1-\theta\right)^{2-x}}{1-\left(1-\theta\right)^2}, \; x= \{1,2\}
+$$
+
+Imagine that we observe a sample of $\textbf{n}$ [i.i.d](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables) random varaibles $\mathbf{x}=$ $\left(x_{1}, \ldots, x_{n}\right)$ and want to model them using this distribution. Please use the concept of maximum likelihood to estimate for the parameter $\theta$. (Check the back of the unit formula sheet for differentiation rules)
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+
+## Part 2: Central Limit Theorem  [15 marks]
+
+
+#### Question 1 (8 Marks)
+
+Someone wants to investigate the subscription rate ***p*** of Netflix in Monash University, and they take the average frequency of all surveyed people as an estimate $\hat{p}$ for ***p***. Now it is necessary to ensure that there is at least 90% certainty that the difference between the surveyed rate $\hat{p}$ and the actual rate ***p*** is not more than 5%.  How many people at least should take the survey?
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+#### Question 2 (7 Marks)
+
+In Module 2, we mentioned the use of the weak law of large numbers which tells us that the sample estimator will converge to the population parameter if we have sufficiently large number of observations (or sample size). In this question, we would like to see how big the sample size should be in order to get the approximation error down to a certain level.
+
+Assuming that we have a [Binomial random varibale](https://en.wikipedia.org/wiki/Binomial_distribution) $X \sim \text{Bin}(n, 0.8)$, what is the smallest sample size $\textbf{n}$ such that
+$$
+P\left(\left|\frac{X}{n} - 0.8\right| >0.1\right) < 0.01
+$$
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+## Part 3: Confidence Interval Estimation & Hypothesis Testing  [25 marks]
+
+Suppose you are a technical data analyst for a rally car team. There are two brands of engine oil in your warehouse, namely Shell and Speedline. Your team conducted 40 experiments for each brand to test the length of time they can keep the racing engine working normally. The data has been saved in the csv file, **Engine_oil_info.csv**. Please note that the first two columns are about Shell and Speedline, while the last column is about Castrol, new engine oil that your team wants to buy but has not yet decided on. We assume the samples are distributed as per Gaussian.
+
+P.S. $\mu_1$ is for mean of Shell working hours; $\mu_2$ is for mean of Speedline working hours; $\mu_3$ is for Castrol working hours.
+
+#### Question 1 (5 Marks)
+You want to analyse the working hours for both Shell and Speedline. Determine 95 percent two-sided confidence intervals for both Shell $\mu_1$ and Speedline $\mu_2$. Also explain what does a 95% confidence interval mean? What will the range of the confidence interval look like when the sample size increases and why? Can you also relate this observation to the weak law of large numbers?
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+#### Question 2 (7 Marks)
+You want to know which engine oil works longer. Determine a 95 percent two-sided confidence interval for $\mu_1-\mu_2$, and explain your opinion based on your calculations which oil works longer, Shell or Speedline. Please note we assume $\sigma_1=\sigma_2$.
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+#### Question 3 (5 Marks)
+According to Monash University Rally regulation, only when the engine oil's working hours is greater than or equal to 340 hours, this engine oil can be used in this rally. You need to do a hypothesis testing to see whether Speedline is qualified for this rally. You have null hypothesis $H_0: \mu_2 \ge 340$. Write down the alternative hypothesis and report the findings of your hypothesis test based on the significance level 0.05 (Answer should include whether Speedline is qualified for the Monash University Rally).
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+#### Question 4 (8 Marks)
+
+Your team manager wants to buy Castrol engine oil because it is much cheaper than Shell and Speedline. But your team engineer believes that Castrol’s working hours are less than or equal to 340. Remove outlier(s) for Castrol data and do the hypothesis testing $H_0: \mu_3 \le 340$. Do you think your team engineer's statement is true? Report your findings based on the hypothesis testing with significance level 0.05.
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+\newpage
+## Part 4: Linear Regression Model [25 marks]
+  
+Imagine you are having painful surgery while your body being heavily paralysed under general anaesthesia; however, you are awake and can't express this to the surgeons. Ouch! It's a [real nightmare](https://www.asahq.org/madeforthismoment/preparing-for-surgery/risks/waking-up-during-surgery/#:~:text=The%20condition%2C%20called%20anesthesia%20awareness,pain%20when%20experiencing%20anesthesia%20awareness.)! After the surgery you eventually recover but you are determined to not let the same thing happen to other people. So you set out to create a consciousness metre that analyses brain activity and determines a person's level of consciousness to make sure no one will experience similar pain while being paralysed.
+
+You run some experiments on **11** people while they are undergoing general anaesthesia and record **8** neurophysiological variables from **5** different locations in the brain. You also simultaneously obtain a behaviour-based measure of consciousness level that takes on the value $100$ when the person is fully awake. This value will decrease to $0$ as the person consciousness level fades to full unconsciousness.
+
+Your goal is to create a consciousness metre by building a regression model that uses the neurophysiological variables to predict consciousness level. Such a model could then be used during the patient's surgery to make sure that he/she is not awake by recording his/her neurophysiological variables. This is to predict the consciousness level and verify that the patient's conscionsess level is below a sufficient threshold to ensure that the patient won't experience pain.   
+
+You have been provided with three datasets, ```Regression_train.csv```, ```Regression_test.csv```, and ```Regression_new.csv```. Using these datasets, you hope to build a model that can predict consciousness level using the other variables. ```Regression_train.csv``` and ```Regression_new.csv``` come with the ground-truth target label (i.e. consciousness level) whereas `Regression_test.csv` comes with independent variables (input information) only.
+
+The information of the attributes for these datasets can be found below:<br>
+- **sub_ind**: participant ID number <br>
+- **channel.num**: indexes of the brain location from where the neurophysiological recording is taken (please note that there are 5 locations)  <br>
+- **aEP**: average [synaptic](https://en.wikipedia.org/wiki/Synapse) connection strength from the local excitatory interneuron population to the local pyramidal neuron population <br>
+- **aIP**: average synaptic connection strength from the local inhibitory interneuron population to the local pyramidal neuron population<br>
+- **aPE**: average synaptic connection strength from the local pyramidal neuron population to the local excitatory interneuron population<br>
+- **aPI**: average synaptic connection strength from the local pyramidal neuron population to the local inhibitory interneuron population <br>
+- **input**: spatially averaged neurophysiological input to the local brain area being recorded <br>
+- **v_es**: average membrane potential of the local excitatory interneuron population <br>
+- **v_ii**: average membrane potential of the local inhibitory interneuron population <br>
+- **v_pyr**: average membrane potential of the local pyramidal neuron population <br>
+- **consc_lev**: consciousness level of the study participant represented by a number from 0 to 100, 0 indicating fully unconscious and 100 indicating fully conscious/awake.<br>
+
+It can be noted that aEP, aIP, aPE, aPI, input, v_es, v_ii and v_pyr are the 8 neurophysiological variables being recorded at each of the 5 locations (indexed by channel_num) within the brains of the 11 study participants (indexed by sub_ind).
+
+**PLEASE NOTE THAT THE USE OF LIBRARIES ARE PROHIBITED IN THESE QUESTIONS UNLESS STATED OTHERWISE, ANSWERS USING LIBRARIES WILL RECEIVE 0 MARKS**
+
+#### Question 1 (5 marks)
+Please load the ```Regression_train.csv``` and fit a [$\textbf{multiple linear regression model}$](https://en.wikipedia.org/wiki/Linear_regression) with consciousness level being the target variable. According to the summary table, which predictors do you think are possibly associated with the target variable (use the significance level of $0.01$), and which are the **Top 5** strongest predictors? Please write an R script to automatically fetch and print this information.
+
+**NOTE**: Manually doing the above tasks will result in 0 marks.
+
+```{r eval=FALSE, include=T}
+# ANSWER BLOCK
+
+# Read in the data here
+train <- ...
+
+# Build the multiple linear regression model here
+lm.fit <- ... 
+
+# Get the summary of the model here
+fit.summary <- ... 
+
+# Write the function to get the important predictors as well as the top 5 strongest predictors:
+top.predictors <- function(fit.summary){
+    
+    # Getting the important predictors
+    coef.imp <- ...
+    # Getting the top 5 predictors
+    coef.most <- ...
+    
+    # Printing out the results, you can keep this format or make some format that looks better
+    print(paste("The important features are: ", ...))
+    print(paste("The top 5 most important features are: ", ...))
+}
+```
+
+
+#### Question 2 (5 Marks)
+Rather than calling the ```lm()``` function, you would like to write your own function to do the [least square](https://en.wikipedia.org/wiki/Least_squares) estimation for the simple linear regression model parameters $\boldsymbol{\beta_0}$ and $\boldsymbol{\beta_1}$. The function takes two input arguments with the first being the dataset name and the second the predictor name, and outputs the fitted linear model with the form: $$\textbf{E}[\text{consciousness level}]=\hat{\beta}_{0}+\hat{\beta}{_1}x$$ 
+
+Code up this function in R and apply it to the two predictors **input** and **v_pyr** separately, and explain the effect that those two variables have on **consc_lev**.
+
+```{r eval=FALSE, include=T}
+# ANSWER BLOCK
+
+# Least squared estimator function
+lsq <- function(dataset, predictor){
+    # INSERT YOUR ANSWER IN THIS BLOCK
+    
+    # Get the final estimators
+    beta_1 <- ...
+    beta_0 <- ...
+    
+    # Return the results:
+    return(paste0('E[consc_lev]=', beta_0,'+', beta_1,'*',predictor))
+}
+print(lsq(train, 'input'))
+print(lsq(train, 'v_pyr'))
+```
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+#### Question 3 (2 Marks)
+[**R squared**](https://en.wikipedia.org/wiki/Coefficient_of_determination) from the summary table reflects that the full model doesn't fit the training dataset well; thus, you try to quantify the error between the values of the ground-truth and those of the model prediction. You want to write a function to predict consciousness level with the given dataset and calculate the [root mean squared error (rMSE)](https://en.wikipedia.org/wiki/Root-mean-square_deviation) between the model predictions and the ground truths from the training data. Please test this function on the full model and the training dataset.
+
+```{r eval=FALSE, include=T}
+# ANSWER BLOCK
+
+rmse <- function(model, dataset){
+    
+    return(...)
+}
+print(rmse(...))
+```
+
+
+#### Question 4 (4 Marks)
+You find the full model complicated and try to reduce the complexity by performing [bidirectional stepwise regression](https://en.wikipedia.org/wiki/Stepwise_regression) with [BIC](https://en.wikipedia.org/wiki/Bayesian_information_criterion).
+
+Calculate the **rMSE** of this new model from the training data with the function that you implemented previously. Is there anything findings you can make? Explain your findings in 100 words.
+
+
+```{r eval=FALSE, include=T}
+# ANSWER BLOCK
+
+sw.fit <- step(lm.fit, ...)
+
+summary(sw.fit)
+
+print(rmse(...))
+```
+
+
+#### Question 5 (4 Marks)
+You have been given a new dataset ```Regression_new.csv``` obtained from different recording sessions where the subjects only experienced moderate reductions in consciousness. You are going to apply the new model ```sw.fit``` on the new dataset to evaluate the model performance with using **rMSE**. When you look into **rMSE**, what do you find? If you think ```sw.fit``` works well on ```Regression_new.csv```, please explain why it does well. Otherwise, if you think your model ```sw.fit``` doesn't perform well on ```Regression_new.csv```, can you point out the potential reason(s) for this?
+
+```{r eval=FALSE, include=T}
+# ANSWER BLOCK
+new <- read.csv(...) # Reading in the new dataset
+print(rmse(...)) # Finding out the rMSE of the sw.fit model with respect to the new dataset
+
+
+
+```
+
+<font color='blue'> Provide your answer and your explanation here.</font>
+
+#### Question 6 (5 Marks)
+Although stepwise regression has reduced the model complexity significantly, the model still contains a lot of variables that we want to remove. Therefore, you are interested in lightweight linear regression models with ONLY TWO predictors. Write a script to automatically find the best lightweight model which corresponds to the model with the least **rMSE** on the training dataset (Not the new dataset). Compare the **rMSE** of the best lightweight model with the **rMSE** of the full model - ```lm.fit``` - that you built previously. Give an explanation for these results based on consideration of the predictors involved.
+
+```{r eval=FALSE, include=T}
+# ANSWER BLOCK
+
+# Some variables that you would want to initialize
+minimum_error <- ...
+features <- ...
+
+# CODE HERE
+
+print(paste('The best features are', features, '; and the MSE is', minimum_error))
+```
+

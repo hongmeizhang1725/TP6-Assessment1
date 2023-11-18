@@ -1,0 +1,267 @@
+---
+  title: "try1"
+author: "Hongmei Zhang"
+date: "2023-11-01"
+output: html_document
+
+---
+  ```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+library(plotly)
+library(flexdashboard)
+library(ggplot2)
+library(scales)
+library(tidyverse)
+library(ggthemes)
+library(viridis)
+
+library(GGally)
+library(forecast)
+library(caret)
+library(Metrics) 
+library(class)
+library(pROC)
+library(vars)
+
+library(readxl)
+library(dplyr)
+
+library(ggplot2)
+library(tidyr)
+library(scales)
+
+
+
+rm(list=ls())
+
+getwd()
+setwd("D:/Monash/Collaborative and reproducible practices/data")
+
+#Import the dataset.
+data <- read_excel("Industry_au.xlsx")
+
+data1 <- data.frame(data[(1:171),])
+
+# Create a copy of the data frame to avoid data.table caching issues
+data_industry <- data.frame(data1)
+
+summary(data1)
+
+data_state <- data.frame(data[(1:152),])
+
+total_by_state <- aggregate(cbind(Employment, Wages_and_Salaries, Sales_and_services_income) ~ State, data = data_state, sum)
+
+total_by_state <- data_state %>%
+  group_by(State) %>%
+  summarise(
+    Employment = sum(Employment, na.rm = TRUE),
+    Wages_Salaries = sum(Wages_and_Salaries, na.rm = TRUE),
+    Sales_Services_Income = sum(Sales_and_services_income, na.rm = TRUE)
+  )
+
+long_data <- pivot_longer(total_by_state, cols = c(Employment, Wages_Salaries, Sales_Services_Income), names_to = "Variable", values_to = "Value")
+
+# Plotting the data
+plot <- ggplot(long_data, aes(x = State, y = Value, fill = Variable)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(title = "State Shares of Values", x = "State", y = "Share (%)") +
+  theme_minimal()
+
+# Print the plot
+print(plot)
+
+state_sums <- long_data %>% 
+  group_by(State, Variable) %>% 
+  summarise(StateTotal = sum(Value), .groups = 'drop')
+
+# Calculate the total for each category across all states
+overall_sums <- long_data %>% 
+  group_by(Variable) %>% 
+  summarise(OverallTotal = sum(Value), .groups = 'drop')
+
+# Join this information back to the state-level data
+long_data <- left_join(state_sums, overall_sums, by = "Variable")
+
+# Calculate the proportion for each state within each category
+long_data <- long_data %>% 
+  mutate(Share = StateTotal / OverallTotal)
+
+# Create a grouped bar chart
+ggplot(long_data, aes(x = State, y = Share, fill = Variable)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "State Share of Employment, Wages-Salaries, and Sales-Services Income",
+       x = "State",
+       y = "Share (%)",
+       fill = "Category") +
+  theme_minimal()
+
+# First, calculate the total for each state to determine the share
+state_totals <- long_data %>%
+  group_by(State) %>%
+  summarise(Total = sum(Value))
+
+# Calculate the share of each category (Variable) within each state
+long_data <- long_data %>%
+  left_join(state_totals, by = "State") %>%
+  mutate(Share = Value / Total)
+
+# Create a grouped bar chart
+ggplot(long_data, aes(x = State, y = Share, fill = Variable)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(title = "Share of State Employment, Wages-Salaries, and Sales-Services Income",
+       x = "State",
+       y = "Share (%)",
+       fill = "Category") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate the x labels for better readability
+
+
+
+long_data <- pivot_longer(total_by_state, cols = c(Employment, Wages_Salaries, Sales_Services_Income), names_to = "Variable", values_to = "Value")
+
+
+state_sums <- long_data %>% 
+  group_by(State, Variable) %>% 
+  summarise(StateTotal = sum(Value), .groups = 'drop')
+
+# Calculate the total for each category across all states
+overall_sums <- long_data %>% 
+  group_by(Variable) %>% 
+  summarise(OverallTotal = sum(Value), .groups = 'drop')
+
+# Join this information back to the state-level data
+long_data <- left_join(state_sums, overall_sums, by = "Variable")
+
+# Calculate the proportion for each state within each category
+long_data <- long_data %>% 
+  mutate(Share = StateTotal / OverallTotal)
+
+
+# Create your ggplot object
+p <- ggplot(long_data, aes(x = Share, y = Variable, fill = State)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "Category Share by State",
+       x = "Share (%)",
+       fill = "State") +
+  theme_minimal()
+
+# Convert to a plotly interactive object
+p_interactive <- ggplotly(p, tooltip = c("x", "fill"))
+
+# Show the interactive plot in RStudio's Viewer or in a web browser
+p_interactive
+
+
+
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(scales)
+library(plotly)
+
+
+rm(list=ls())
+
+getwd()
+setwd("D:/Monash/Collaborative and reproducible practices/data")
+
+#Import the dataset.
+data <- read_excel("Industry_au.xlsx")
+
+data1 <- data.frame(data[(1:163),])
+
+# Create a copy of the data frame
+data_industry <- data.frame(data1)
+
+summary(data1)
+
+data_state <- data.frame(data[(1:144),])
+
+# Compare the industry employment, sales and services income difference by state
+total_by_state <- aggregate(cbind(Employment, Wages_and_Salaries, Sales_and_services_income) ~ State, data = data_state, sum)
+
+total_by_state <- data_state %>%
+  group_by(State) %>%
+  summarise(
+    Employment = sum(Employment, na.rm = TRUE),
+    Wages_Salaries = sum(Wages_and_Salaries, na.rm = TRUE),
+    Sales_Services_Income = sum(Sales_and_services_income, na.rm = TRUE)
+  )
+
+long_data <- pivot_longer(total_by_state, cols = c(Employment, Wages_Salaries, Sales_Services_Income), names_to = "Variable", values_to = "Value")
+
+
+state_sums <- long_data %>% 
+  group_by(State, Variable) %>% 
+  summarise(StateTotal = sum(Value), .groups = 'drop')
+
+# Calculate the total for each category across all states
+overall_sums <- long_data %>% 
+  group_by(Variable) %>% 
+  summarise(OverallTotal = sum(Value), .groups = 'drop')
+
+# Join this information back to the state-level data
+long_data <- left_join(state_sums, overall_sums, by = "Variable")
+
+# Calculate the proportion for each state within each category
+long_data <- long_data %>% 
+  mutate(Share = StateTotal / OverallTotal)
+
+
+# Create your ggplot object
+p <- ggplot(long_data, aes(x = Share, y = Variable, fill = State)) +
+  geom_bar(stat = "identity", position = "fill", width = 0.5) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "State and territory share of industry indicators in 2021-2022",
+       x = "Share (%)",
+       y = "",
+       fill = "State") +
+  theme_minimal()
+
+# Convert to a plotly interactive object
+p_interactive <- ggplotly(p, tooltip = c("x", "fill"))
+
+# Show the interactive plot
+p_interactive
+
+
+
+data2 <- data_state[, c("State", "Industry", "Wages_and_Salaries", "Sales_and_services_income")]
+
+summary(data2)
+
+# Arrange by State and Employment, then get top 3 for each State
+top_industries_by_state <- data2 %>%
+  group_by(State) %>%
+  arrange(State, desc(Sales_and_services_income)) %>%
+  slice_max(n = 3, order_by = Sales_and_services_income) %>%
+  ungroup()  # Ungroup the data after done grouped operations
+
+# Reshape the data to long format for plotting
+long_format <- top_industries_by_state %>%
+  pivot_longer(cols = c("Wages_and_Salaries", "Sales_and_services_income"),
+               names_to = "Metric", values_to = "Value")
+
+# Plotting with ggplot2
+ggplot(long_format, aes(x = State, y = Value, fill = Industry)) +
+  geom_bar(stat = "identity", position = "dodge") + # Use 'dodge' to create side-by-side bars
+  facet_wrap(~ Metric, scales = "free_y") + # Separate plots for Employment and Sales_and_services_income
+  coord_flip() + # Flip the coordinates to make the bars horizontal
+  labs(title = "Top 3 Industry Categories by State",
+       y = "State", # Note the label swap
+       x = "Value") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), # Adjust the x-axis labels to 45 degree
+    legend.position = "bottom" 
+  )
+
+

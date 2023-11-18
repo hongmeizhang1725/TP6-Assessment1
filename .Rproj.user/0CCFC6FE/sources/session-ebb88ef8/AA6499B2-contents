@@ -1,0 +1,478 @@
+---
+title: "Assessment 1"
+author: "Hongmei Zhang"
+date: "2023-07-22"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+library(plotly)
+library(flexdashboard)
+library(ggplot2)
+library(scales)
+library(tidyverse)
+library(maps)
+library(ggthemes)
+library(viridis)
+library(plotly)
+library(dplyr)
+library(readxl)
+library(GGally)
+rm(list=ls())
+
+getwd()
+setwd("D:/Monash/Data visualisation and analytics/data")
+
+#Import the dataset.
+data <- read.csv("Interest.csv")
+
+data1 <- data.frame(data[(1:12),])
+
+# Create a copy of the data frame to avoid data.table caching issues
+data_interest <- data.frame(data1)
+
+# Convert numeric columns to numeric data type
+data_interest[, -(1:4)] <- sapply(data_interest[, -(1:4)], as.numeric)
+
+
+# Calculate the column means (ignoring NA values)
+col_means <- colMeans(data_interest[, -(1:4)], na.rm = TRUE)
+
+# Replace NA values in the data_copy with the corresponding column mean value
+for (i in 1:nrow(data_interest)) {
+  na_indices <- is.na(data_interest[i, -(1:4)])
+  data_interest[i, -(1:4)][na_indices] <- col_means[na_indices]
+}
+
+# Delete unnecessary columns and change columns names
+data_interest <- data_interest[, -c(1, 3, 4)]
+colnames(data_interest) <- c("Country", "2001", "2002","2003","2004", "2005",
+                             "2006","2007", "2008","2009","2010", "2011","2012",
+                             "2013", "2014","2015","2016", "2017","2018","2019",
+                             "2020","2021","2022")
+# Reverse the matrix 
+df_interest <- data_interest %>% pivot_longer(!Country,names_to ="year", values_to ="value") %>%
+  mutate(year = as.numeric(year))
+df_interest
+
+# Import Inflation data.
+data2 <- read.csv("Inflation.csv")
+
+data_inflation <- data.frame(data2[(1:12),])
+
+# Create a copy of the data frame to avoid data.table caching issues
+data_inflation <- data.frame(data_inflation)
+
+# Convert numeric columns to numeric data type
+data_inflation[, -(1:4)] <- sapply(data_inflation[, -(1:4)], as.numeric)
+
+
+# Calculate the column means (ignoring NA values)
+col_means2 <- colMeans(data_inflation[, -(1:4)], na.rm = TRUE)
+
+# Replace NA values in the data_copy with the corresponding column mean value
+for (i in 1:nrow(data_inflation)) {
+  na_indices2 <- is.na(data_inflation[i, -(1:4)])
+  data_inflation[i, -(1:4)][na_indices2] <- col_means2[na_indices2]
+}
+
+# Delete unnecessary columns and change columns names
+data_inflation <- data_inflation[, -c(1, 3, 4)]
+colnames(data_inflation) <- c("Country", "2001", "2002","2003","2004", "2005",
+                             "2006","2007", "2008","2009","2010", "2011","2012",
+                             "2013", "2014","2015","2016", "2017","2018","2019",
+                             "2020","2021","2022")
+# Reverse matrix
+df_inflation <- data_inflation %>% pivot_longer(!Country,names_to ="year", values_to ="value") %>%
+  mutate(year = as.numeric(year))
+df_inflation
+
+# Import GDP data
+data3 <- read.csv("GDP.csv")
+
+data_gdp <- data.frame(data3[(1:12),])
+
+# Create a copy of the data frame to avoid data.table caching issues
+data_gdp <- data.frame(data_gdp)
+
+# Convert numeric columns to numeric data type
+data_gdp[, -(1:4)] <- sapply(data_gdp[, -(1:4)], as.numeric)
+
+
+# Calculate the column means (ignoring NA values)
+col_means3 <- colMeans(data_gdp[, -(1:4)], na.rm = TRUE)
+
+# Replace NA values in)) {
+for (i in 1:nrow(data_gdp)) {
+  na_indices3 <- is.na(data_gdp[i, -(1:4)])
+  data_gdp[i, -(1:4)][na_indices3] <- col_means3[na_indices3]
+}
+# Delete unnecessary columns and change columns names
+data_gdp <- data_gdp[, -c(1, 3, 4)]
+colnames(data_gdp) <- c("Country", "2001", "2002","2003","2004", "2005",
+                             "2006","2007", "2008","2009","2010", "2011","2012",
+                             "2013", "2014","2015","2016", "2017","2018","2019",
+                             "2020","2021","2022")
+# Reverse matrix
+df_gdp <- data_gdp %>% pivot_longer(!Country,names_to ="year", values_to ="value") %>%
+  mutate(year = as.numeric(year))
+df_gdp
+
+data4 <- read.csv("Unemployment.csv")
+
+data_unemployment <- data.frame(data4[(1:12),])
+
+# Create a copy of the data frame to avoid data.table caching issues
+data_unemployment <- data.frame(data_unemployment)
+
+# Convert numeric columns to numeric data type
+data_unemployment[, -(1:4)] <- sapply(data_unemployment[, -(1:4)], as.numeric)
+
+
+# Calculate the column means (ignoring NA values)
+col_means4 <- colMeans(data_unemployment[, -(1:4)], na.rm = TRUE)
+
+# Replace NA values in the data_copy with the corresponding column mean value
+for (i in 1:nrow(data_unemployment)) {
+  na_indices4 <- is.na(data_unemployment[i, -(1:4)])
+  data_unemployment[i, -(1:4)][na_indices4] <- col_means4[na_indices4]
+}
+
+# Delete unnecessary columns and change columns names
+data_unemployment <- data_unemployment[, -c(1, 3, 4)]
+colnames(data_unemployment) <- c("Country", "2001", "2002","2003","2004", "2005",
+                             "2006","2007", "2008","2009","2010", "2011","2012",
+                             "2013", "2014","2015","2016", "2017","2018","2019",
+                             "2020","2021","2022")
+# Reverse matrix
+df_unemployment <- data_unemployment %>% pivot_longer(!Country,names_to ="year", values_to ="value") %>%
+  mutate(year = as.numeric(year))
+df_unemployment
+
+# Subset the Australia data.
+au_interest <- filter(df_interest, Country == "AUS",!is.na(value))
+au_interest
+
+au_inflation <- filter(df_inflation,Country == "AUS",!is.na(value))
+au_inflation
+
+au_gdp <- filter(df_gdp, Country == "AUS",!is.na(value))
+au_gdp
+
+au_unemployment <- filter(df_unemployment, Country == "AUS",!is.na(value))
+au_unemployment
+
+# Combined the data into one set.
+merged_data <- au_interest%>%
+  full_join(au_inflation, by = "year") %>%
+  full_join(au_gdp, by = "year") %>%
+  full_join(au_unemployment, by = "year")
+
+merged_data <- merged_data[, -c(1, 4, 6, 8)]
+
+merged_data <- merged_data %>%
+  rename("Year"= "year", "InterestRate" = "value.x", "Inflation" = "value.y", "GDP"= "value.x.x", "Unemployment" = "value.y.y")
+
+```
+
+## Interest Rate and Inflation Dashboard
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r eruptions, echo=FALSE}
+# Define the UI for the Shiny app
+ui <- shinyUI(
+  fluidPage(
+    tags$head(
+      tags$style(HTML("
+        /* Set the width and height of the dashboard to 100% */
+        body, html {
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
+        /* Set the height of the navbarPage to 100% */
+        .navbar, .navbar-default {
+          height: 100%;
+        }
+      "))
+    ),
+    navbarPage("Economic Indicators",
+      # Description
+    tabPanel("Description",
+      fluidPage(
+        h2("Welcome to Interest Rate and Inflation Dashboard!"),
+        p("This dashboard is to display the variation of interest rate and its influence factors from 2001 to 2022 in the 12 countries of the world based on graphic visualization. The dataset in this dashboard contains real interest rate, inflation and unemployment. The data is downloaded from the website of The World Bank provided by Monash University, three data sets with 12 observations and 23 variables were extracted from the world development indicators. "),
+        p("The Reserve Bank of Australia has been increasing rates frequently since April 2022, which influent inflation, and high inflation is corrosive and damages our economy. In this dashboard, we will display the trend of real interest rate and analyse the relationship between interest rate, inflation and unemployment. "),
+        p("The data is from the website of the World Bank. It did not include any personal information and informed consent and the website did not mention any restrictions on usage and sharing. The NA value is replaced by yearly mean value as the condition of economy changed yearly and the rate is more proper to use for prediction."),
+        p("The trend of real interest rate and inflation are display as reactive visualisation. The relationship of interest rate, inflation and unemployment also is shown in the 'Australia' tab. The three indicators have a positive and negative relationship in 'Correlation' tab."),
+      
+      )
+    ),
+
+             
+    # User Instructions tab
+    tabPanel("Instructions",
+      fluidPage(
+        h2("Welcome to Interest Rate and Inflation Dashboard!"),
+        p("Please follow the intructions below: "),
+        p("1. Click on the channel of tabs to access the data analysis section."),
+        p("2. In the sidebar, select a country from the dropdown menu to filter the data for that specific country."),
+        p("3. Adjust the year range using the slider to focus on a specific period of time."),
+        p("4. The plot will dynamically update based on the selected country and year range."),
+        p("5. Navigate to the 'Disclaimer' tab to review the disclaimer and references for this analysis."),
+        
+      )
+    ),
+     tabPanel("Disclaimer",
+      tags$style(HTML("
+      /* Add line space before the 'References' section */
+      p.references-section {
+        margin-top: 20px;
+      }
+
+      /* Increase the font size for the 'References' section */
+      p.references-section strong {
+        font-size: 18px;
+      }
+    ")),
+        p("1. The analysis should be used for practical and learning purposes only."),
+        p("2. Please note that the data used in this dashboard is from the website of the World Bank."), 
+        p("3. We recommend verifying the information from official sources. "),
+        p("4. By using this dashboard, you acknowledge and agree to the terms of this disclaimer."),
+    tags$p(class = "references-section",
+      "References:",
+      br(),
+      
+        p("World Development Indicators (The World Bank, 2022),https://databank.worldbank.org/source/world-development-indicators."),
+        p("Hadley Wickham, R for Data Science,https://r4ds.hadley.nz/. "), 
+        p("Claus O. Wilke, Fundamentals of Data Visualization, https://clauswilke.com/dataviz/index.html/."),
+        p("Vitor Constancio, The Challenge of Low Real Interest Rates of Monetary Policy, 15 June, 2016, https://www.ecb.europa.eu/press/key/date/2016/html/sp160615.en.html."),
+        p("Frederic S Mishkin(2022), The Economics of Money, Banking and Fiancial Markets, 13th Edition, Pearson."),
+        
+      )
+    ),
+      # Analysis tab
+    tabPanel("Interest Rate and Inflation",
+        sidebarLayout(
+          sidebarPanel( # Input controls for analysis
+            selectInput("country", "Select Country:", choices = unique(df_interest$Country)),
+            sliderInput("year_range", "Select Year Range:", min = min(df_interest$year), max = max(df_interest$year), value = c(min(df_interest$year), max(df_interest$year))),
+            
+            # Input control for prediction
+            numericInput("analysis_input_value", "Enter a future year for prediction:", value = NULL),
+            actionButton("analysis_predict_button", "Predict")
+          ),
+          mainPanel(
+            # Output plot
+            tabsetPanel(  # Establish tabset panel
+              # Tab1
+              tabPanel(
+                title = "Real Interest Rate",
+                plotOutput("plot1", height = "600px", width = "600px")
+              ),
+              # Tab2
+              tabPanel(
+                title = "Inflation",
+                plotOutput("plot2", height = "600px", width = "600px")
+              )
+            ),
+            # Output for prediction result or model fit diagnosis
+            verbatimTextOutput("prediction_result")
+          )
+        )
+      ),
+
+
+      
+      # Analysis_2 tab
+      tabPanel("Australia",
+        mainPanel(
+          # Output plot
+          title = "Real Interest Rate, Inflation and Unemployment of Australia",
+          plotOutput("plot3", height = "600px", width = "900px")
+        )
+      ),
+      
+      # Analysis_3 tab
+      tabPanel("Correlation",
+        mainPanel(
+          # Output plot
+          title = "Correlation of Real Interest Rate, Inflation and Unemployment",
+          plotOutput("plot4", height = "600px", width = "900px")
+        )
+      ),
+      
+      # Analysis_4 tab
+      tabPanel("Regression",
+        mainPanel(
+          # Output plot
+          tabsetPanel(  # Establish tabset panel
+            # Tab1
+            tabPanel(
+              title = "Real Interest Rate and Inflation",
+              plotOutput("plot5", height = "600px", width = "900px")
+            ),
+            # Tab2
+            tabPanel(
+              title = "Real Interest Rate and Unemployment",
+              plotOutput("plot6", height = "600px", width = "900px")
+            ),
+            # Tab3
+            tabPanel(
+              title = "Inflation and Unemployment",
+              plotOutput("plot7", height = "600px", width = "900px")
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  # Create a reactive subset of the data based on the selected country and year range
+  country_data <- reactive({
+    df_interest[df_interest$Country == input$country & df_interest$year >= input$year_range[1] & df_interest$year <= input$year_range[2], ]
+  })
+  
+  country_data2 <- reactive({
+    df_inflation[df_inflation$Country == input$country & df_inflation$year >= input$year_range[1] & df_inflation$year <= input$year_range[2], ]
+  })
+  
+# Render the plot based on the reactive subset of data
+  output$plot1 <- renderPlot({
+    gg <- ggplot(country_data(), aes(x = year, y = value, color = Country)) +
+      geom_line(linewidth = 1) +
+      geom_point(size = 2) +
+      xlab("Year") +
+      ylab("Real Interest Rate") +
+      theme(legend.title = element_blank(),
+            legend.position = 'bottom',
+            axis.title.x = element_text(size = 11, face = 'bold'),
+            axis.title.y = element_text(size = 11, face = 'bold'),
+            legend.box.background = element_rect(colour = 'black'),
+            legend.background = element_blank(),
+            axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
+      scale_x_continuous(breaks = round(seq(min(df_interest$year), max(df_interest$year), by = 1), 1)) +
+      labs(title = "Real Interest Rate from 2001 to 2022",y = 'Real Interest Rate', x = 'Year')
+    
+    gg
+  })
+  
+  output$plot2 <- renderPlot({
+    gg2 <- ggplot(country_data2(), aes(x = year, y = value, color = Country)) +
+      geom_line(linewidth = 1) +
+      geom_point(size = 2) +
+      xlab("Year") +
+      ylab("Inflation") +
+      theme(legend.title = element_blank(),
+            legend.position = 'bottom',
+            axis.title.x = element_text(size = 11, face = 'bold'),
+            axis.title.y = element_text(size = 11, face = 'bold'),
+            legend.box.background = element_rect(colour = 'black'),
+            legend.background = element_blank(),
+            axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
+      scale_x_continuous(breaks = round(seq(min(df_inflation$year), max(df_inflation$year), by = 1), 1)) +
+      labs(title = "Inflation from 2001 to 2022", y = 'Inflation', x = 'Year')
+    
+    gg2
+  })
+  
+  output$plot3 <- renderPlot({
+    gg3 <- ggplot(merged_data) +
+  geom_bar(aes(x = Year, y = InterestRate, fill = "InterestRate"), stat = "identity", color = "orange", size = 1) +
+  geom_line(aes(x = Year, y = Inflation, color = "Inflation"), size = 1) +
+  geom_line(aes(x = Year, y = Unemployment, color = "Unemployment"), size = 1) +
+  geom_text(aes(label = round(InterestRate), x = Year, y = InterestRate), color = "black", size = 1.5) +
+  geom_text(aes(label = round(Inflation), x = Year, y = 0.95 * Inflation), color = "black", size = 1.5) +
+  geom_text(aes(label = round(Unemployment), x = Year, y = 0.95 * Unemployment), color = "black", size = 1.5) +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.box = "horizontal",
+        legend.box.just = "center",
+        legend.spacing = unit(0.5, "lines"),
+        axis.title.x = element_text(size = 11, face = "bold"),
+        axis.title.y = element_text(size = 11, face = "bold"),
+        legend.background = element_rect(color = "white")) +
+  scale_fill_manual(values = "yellow", guide = guide_legend(title = "Economic Indicators")) +
+  scale_color_manual(values = c(Inflation = "blue", Unemployment = "red"), guide = guide_legend(title = NULL)) +
+  scale_x_continuous(breaks = round(seq(min(merged_data$Year), max(merged_data$Year), by = 1), 1)) +
+  labs(title = "Interest, Inflation and Unemployment in Australia",
+    y = "Percentage", x = "Year")
+gg3
+})
+  
+output$plot4 <- renderPlot({
+    gg4 <- ggpairs(merged_data, columns = c("InterestRate", "Inflation", "Unemployment"),
+        title = "Correlationship Between Interest Rate, Inflation, and Unemployment")
+gg4
+})
+
+# Scatterplot with linear regression line for 'InterestRate' and 'Inflation'
+output$plot5 <- renderPlot({
+    gg5 <-ggplot(merged_data, aes(x = Inflation, y = InterestRate)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", size = 1) +
+  labs(title = "Scatterplot with Linear Regression Line",
+       x = "Inflation",
+       y = "Interest Rate") +
+  theme_minimal()
+gg5
+})
+
+# Scatterplot with linear regression line for 'Unemployment' and 'InterestRate'
+output$plot6 <- renderPlot({
+    gg6 <-ggplot(merged_data, aes(x = Unemployment, y = InterestRate)) +
+  geom_point(size = 3, color = "green") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", size = 1) +
+  labs(title = "Scatterplot with Linear Regression Line",
+       x = "Unemployment",
+       y = "Interest Rate") +
+  theme_minimal()
+gg6
+})
+
+# Scatterplot with linear regression line for 'Unemployment' and 'Inflation'
+output$plot7 <- renderPlot({
+    gg7 <-ggplot(merged_data, aes(x = Unemployment, y = Inflation)) +
+  geom_point(size = 3, color = "purple") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", size = 1) +
+  labs(title = "Scatterplot with Linear Regression Line",
+       x = "Unemployment",
+       y = "Inflation") +
+  theme_minimal()
+gg7
+})
+
+  # Perform prediction or model fit diagnosis based on the input value
+ output$prediction_result <- renderPrint({
+  req(input$analysis_predict_button)  # Triggered when the button is clicked
+  
+    # Fit the linear regression model
+    lm_model <- lm(value ~ year, data = df_interest)
+
+    # Predict interest rates for the input value (input_value)
+    input_value <- as.numeric(input$analysis_input_value)
+    if (!is.na(input_value) && input_value >= 2022) {
+      prediction <- predict(lm_model, newdata = data.frame(year = input_value))
+      paste("Prediction:", prediction)
+    } else {
+      "Please enter a numeric value above 2022."
+    }
+  })
+
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server, options = list(height = 1080))
+
+```
+
+
