@@ -1,0 +1,517 @@
+---
+title: "Forecasting Inflation and Related Factors of Australia"
+author: "Hongmei Zhang"
+date: "2023-08-06"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+library(plotly)
+library(flexdashboard)
+library(ggplot2)
+library(scales)
+library(tidyverse)
+library(ggthemes)
+library(viridis)
+library(dplyr)
+library(readxl)
+library(GGally)
+library(forecast)
+library(caret)
+library(Metrics) 
+library(class)
+library(pROC)
+library(vars)
+
+
+rm(list=ls())
+
+getwd()
+setwd("D:/Monash/Data visualisation and analytics/data")
+
+#Import the dataset.
+data <- read.csv("Interest.csv")
+
+data1 <- data.frame(data[(1:12),])
+
+# Create a copy of the data frame to avoid data.table caching issues
+data_interest <- data.frame(data1)
+
+# Convert numeric columns to numeric data type
+data_interest[, -(1:4)] <- sapply(data_interest[, -(1:4)], as.numeric)
+
+
+# Calculate the column means (ignoring NA values)
+col_means <- colMeans(data_interest[, -(1:4)], na.rm = TRUE)
+
+# Replace NA values in the data_copy with the corresponding column mean value
+for (i in 1:nrow(data_interest)) {
+  na_indices <- is.na(data_interest[i, -(1:4)])
+  data_interest[i, -(1:4)][na_indices] <- col_means[na_indices]
+}
+
+# Delete unnecessary columns and change columns names
+data_interest <- data_interest[, -c(1, 3, 4)]
+colnames(data_interest) <- c("Country", "2001", "2002","2003","2004", "2005",
+                             "2006","2007", "2008","2009","2010", "2011","2012",
+                             "2013", "2014","2015","2016", "2017","2018","2019",
+                             "2020","2021","2022")
+# Reverse the matrix 
+df_interest <- data_interest %>% pivot_longer(!Country,names_to ="year", values_to ="value") %>%
+  mutate(year = as.numeric(year))
+df_interest
+
+# Import Inflation data.
+data2 <- read.csv("Inflation.csv")
+
+data_inflation <- data.frame(data2[(1:12),])
+
+# Create a copy of the data frame to avoid data.table caching issues
+data_inflation <- data.frame(data_inflation)
+
+# Convert numeric columns to numeric data type
+data_inflation[, -(1:4)] <- sapply(data_inflation[, -(1:4)], as.numeric)
+
+
+# Calculate the column means (ignoring NA values)
+col_means2 <- colMeans(data_inflation[, -(1:4)], na.rm = TRUE)
+
+# Replace NA values in the data_copy with the corresponding column mean value
+for (i in 1:nrow(data_inflation)) {
+  na_indices2 <- is.na(data_inflation[i, -(1:4)])
+  data_inflation[i, -(1:4)][na_indices2] <- col_means2[na_indices2]
+}
+
+# Delete unnecessary columns and change columns names
+data_inflation <- data_inflation[, -c(1, 3, 4)]
+colnames(data_inflation) <- c("Country", "2001", "2002","2003","2004", "2005",
+                              "2006","2007", "2008","2009","2010", "2011","2012",
+                              "2013", "2014","2015","2016", "2017","2018","2019",
+                              "2020","2021","2022")
+# Reverse matrix
+df_inflation <- data_inflation %>% pivot_longer(!Country,names_to ="year", values_to ="value") %>%
+  mutate(year = as.numeric(year))
+df_inflation
+
+# Import GDP data
+data3 <- read.csv("GDP.csv")
+
+data_gdp <- data.frame(data3[(1:12),])
+
+# Create a copy of the data frame to avoid data.table caching issues
+data_gdp <- data.frame(data_gdp)
+
+# Convert numeric columns to numeric data type
+data_gdp[, -(1:4)] <- sapply(data_gdp[, -(1:4)], as.numeric)
+
+
+# Calculate the column means (ignoring NA values)
+col_means3 <- colMeans(data_gdp[, -(1:4)], na.rm = TRUE)
+
+# Replace NA values in)) {
+for (i in 1:nrow(data_gdp)) {
+  na_indices3 <- is.na(data_gdp[i, -(1:4)])
+  data_gdp[i, -(1:4)][na_indices3] <- col_means3[na_indices3]
+}
+# Delete unnecessary columns and change columns names
+data_gdp <- data_gdp[, -c(1, 3, 4)]
+colnames(data_gdp) <- c("Country", "2001", "2002","2003","2004", "2005",
+                        "2006","2007", "2008","2009","2010", "2011","2012",
+                        "2013", "2014","2015","2016", "2017","2018","2019",
+                        "2020","2021","2022")
+# Reverse matrix
+df_gdp <- data_gdp %>% pivot_longer(!Country,names_to ="year", values_to ="value") %>%
+  mutate(year = as.numeric(year))
+df_gdp
+
+data4 <- read.csv("Unemployment.csv")
+
+data_unemployment <- data.frame(data4[(1:12),])
+
+# Create a copy of the data frame to avoid data.table caching issues
+data_unemployment <- data.frame(data_unemployment)
+
+# Convert numeric columns to numeric data type
+data_unemployment[, -(1:4)] <- sapply(data_unemployment[, -(1:4)], as.numeric)
+
+
+# Calculate the column means (ignoring NA values)
+col_means4 <- colMeans(data_unemployment[, -(1:4)], na.rm = TRUE)
+
+# Replace NA values in the data_copy with the corresponding column mean value
+for (i in 1:nrow(data_unemployment)) {
+  na_indices4 <- is.na(data_unemployment[i, -(1:4)])
+  data_unemployment[i, -(1:4)][na_indices4] <- col_means4[na_indices4]
+}
+
+# Delete unnecessary columns and change columns names
+data_unemployment <- data_unemployment[, -c(1, 3, 4)]
+colnames(data_unemployment) <- c("Country", "2001", "2002","2003","2004", "2005",
+                                 "2006","2007", "2008","2009","2010", "2011","2012",
+                                 "2013", "2014","2015","2016", "2017","2018","2019",
+                                 "2020","2021","2022")
+# Reverse matrix
+df_unemployment <- data_unemployment %>% pivot_longer(!Country,names_to ="year", values_to ="value") %>%
+  mutate(year = as.numeric(year))
+df_unemployment
+
+# Subset the Australia data.
+au_interest <- filter(df_interest, Country == "AUS",!is.na(value))
+au_interest
+
+au_inflation <- filter(df_inflation,Country == "AUS",!is.na(value))
+au_inflation
+
+au_gdp <- filter(df_gdp, Country == "AUS",!is.na(value))
+au_gdp
+
+au_unemployment <- filter(df_unemployment, Country == "AUS",!is.na(value))
+au_unemployment
+
+# Combined the data into one set.
+merged_data <- au_interest%>%
+  full_join(au_inflation, by = "year") %>%
+  full_join(au_gdp, by = "year") %>%
+  full_join(au_unemployment, by = "year")
+
+merged_data <- merged_data[, -c(1, 4, 6, 8)]
+
+merged_data <- merged_data %>%
+  rename("Year"= "year", "InterestRate" = "value.x", "Inflation" = "value.y", "GDP"= "value.x.x", "Unemployment" = "value.y.y")
+```
+
+## 1. Introduction
+
+Inflation is a very important indicator in the economy of Australia and it affects the other economy indicators including interest rate, gross domestic product growth, cost of living etc.Forecasting inflation is used for policy makers, investors and consumers. In this report, we will focus on two questions. Firstly, we will explore the trend of inflation, and discovery the relationship of inflation and unemployment, verify the same negative relationship as the Philips curve.  Then, we will use three predictive models to analyse the dataset and make a prediction, which include K Nearest Neighbour(KNN), time series model and VAR. The comparison of three different models and evaluations applies in the analysis, the best predictive model is recommended after the observation and analysis for predicting inflation.
+
+
+## 2. Data
+
+### 2.1 Data Overview
+
+This report aims to visualize the variation of inflation and its influencing factors in Australia from 2001 to 2022 and make a prediction on inflation and relevant factors. The dataset includes inflation, real interest rates, GDP, and unemployment data, extracted from the website of the World Bank provided by Monash University. Three data sets with 5 observations and 22 variables were extracted from the world development indicators.
+
+Inflation CPI is rapid increasing since 2020 and the Reserve Bank of Australia has been frequently increasing interest rates since April 2022, which has significant implications for inflation, as high inflation can negatively impact the economy. A plot will be shown in the next section for the trend of inflation and the relationship between inflation, interest rates, GDP, and unemployment.
+
+### 2.2 Data Explanation
+
+The data for this analysis has been collected by the World Bank. It is an open-source database and can be used for research and analysis purposes. The extracted dataset show the following data characteristics:
+
+-Inflation, consumer prices (annual %)
+-Real Interest Rate (%)
+-GDP per capita growth (annual %)
+-Unemployment, total (% of total labor force) (national estimate)
+-Sources of information
+
+Each row represents an economic indicator and has 22 variables, the descriptions of these variables will be provided in the following table.
+As a following analysis from assessment 2, we will extract the data of Australia from the dataset of original 12 countries in the last assessment. For missing values (NA), yearly mean values have been used as replacements, as the economic conditions change annually, and using yearly mean values is more suitable for prediction purposes.
+
+### 2.2 Data Exploration
+
+1. The data set is loaded into R separately by using the read.csv function due to the continuity of analysis. We apply the str function to observe the structure of dataset, including information about data type, dimensions, content, and nested components.It also provides the essential overview for the dataset, the following table shows 5 columns and 22 rows in our dataset.
+2. To explore the distributions of key variables, a statistical summary is generated for the entire dataset. In the result of summary function provides specific information relevant for the variables. For instance,minimum real interest rate reached to -1.78 and maximum inflation reached to 6.59 while the average GDP growth keep in around 1.29%.
+3. The steps are used to filter out the dataset.
+-Extracted by 12 countries data previously from 2001 to 2022.
+-Separated dataset for further analysis uses.
+-Cleaned data for missing values.
+-Filtered out the data for Australia.
+-Merged data by year.
+
+
+```{r cars}
+
+str(merged_data)
+
+summary(merged_data)
+
+```
+
+## 3. Methodology
+
+This section explains the process of the report and the methods used in the analysis. Four steps is proceeded in the following analysis section.
+
+Firstly, we use ggplot to visualise the data for an overview.The another ggplot will show up the relationship for inflation and unemployment to verify the Philips curve.
+
+Secondly, KNN is used for prediction as learning context from module 5. K nearest neighbours is a non-parametric machine learning technique to be used for classification and regression. To explore the neighbourhood and assume the similar datapoint and derive the output in KNN. K neighbours with minimum distance will take part in classification during testing. To use the K-Nearest Neighbors (KNN) algorithm to predict inflation using the au_inflation dataset, we would need to have other variables that we can use to predict inflation. If we only have the inflation data and no additional variables, KNN might not be the most suitable algorithm for this prediction.So we use merged dataset for  KNN with multiple features to support our predictions.
+
+The train function from the caret package is used to perform cross-validated training of the KNN model. The trainControl argument specifies the cross-validation method (5-fold cross-validation is used in our analysis). The resulting knn_model object contains information about the trained model and its performance. By using cross-validation we try to make informed decisions about our model selection and hyperparameter tuning.
+
+Thirdly, a time series model ARIMA applies in prediction of inflation as our dataset is a time series data, ARIMA is more suibable for our dataset.The AutoRegressive Integrated Moving Average (ARIMA) model is a regular time series forecasting technique used to model and predict future values of a time series based on its historical time series patterns. The methodology of ARIMA includes stationarity, differencing, autocorrelation and partial autocorrelation, then selecting model order to make forecasting and evaluation for the model.
+
+As we have multiple time series variables in merged data, a vector Autoregression (VAR) is also used for forecasting and analysis method to model the relationships and interactions between multiple time series variables. VAR extends the concepts of autoregressive (AR) and moving average (MA) models to apply on multiple variables. The key different with ARIMA is to determine lag by the previous results on ACF and PACF, and provide a flexible framework for analyzing and forecasting multivariate time series data. 
+
+
+## 4. Analysis Components
+
+### 4.1 Data Visualisation
+
+From the following graph, the inflation, interest rate, GDP and unemployment rate in Australia are shown from 2001 to 2022. Inflation declined from 2001 but sharply increase from 2020 to a highest level in 2022. Real interest rate has a negative value on 2021, negative interest rate gives consumers and businesses an incentive to spend or invest instead of savings.GDP growth rates are negative in 2009 and 2020, probably due to influence from 2008 financial crisis and 2019 covid pandemic outbreaking.
+
+```{r pressure1, echo=FALSE}
+# Visiaulisation of data
+ggplot(merged_data) +
+  geom_bar(aes(x = Year, y = Inflation, fill = "Inflation"), stat = "identity", color = "blue", linewidth = 0.5) +
+  geom_line(aes(x = Year, y = InterestRate, color = "InterestRate"),  linewidth= 1) +
+  geom_line(aes(x = Year, y = GDP, color = "GDP"), linewidth = 1) +
+  geom_line(aes(x = Year, y = Unemployment, color = "Unemployment"), linewidth = 1) +
+  geom_text(aes(label = round(Inflation), x = Year, y = Inflation), color = "black", size = 1.5) +
+  geom_text(aes(label = round(InterestRate), x = Year, y = 0.95 * InterestRate), color = "black", size = 1.5) +
+  geom_text(aes(label = round(GDP), x = Year, y = 0.95 * GDP), color = "black", size = 1.5) +
+  geom_text(aes(label = round(Unemployment), x = Year, y = 0.95 * Unemployment), color = "black", size = 1.5) +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.box = "horizontal",
+        legend.box.just = "center",
+        legend.spacing = unit(0.5, "lines"),
+        axis.title.x = element_text(size = 11, face = "bold"),
+        axis.title.y = element_text(size = 11, face = "bold"),
+        legend.background = element_rect(color = "white"),
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = "lightblue", guide = guide_legend(title = "Economic Indicators")) +
+  scale_color_manual(values = c(InterestRate = "orange",GDP ="red", Unemployment = "green"), guide = guide_legend(title = NULL)) +
+  scale_x_continuous(breaks = round(seq(min(merged_data$Year), max(merged_data$Year), by = 1), 1)) +
+  labs(title = "Inflation, Interest Rate, GDP and Unemployment in Australia",
+       y = "Percentage", x = "Year")
+
+```
+
+The Phillips curve is an economic theory on relationship of inflation and unemployment, similarly it applies in Australia as the following plot. The linear regression line shows the inverse relationship between inflation CPI and unemployment.Also, it is notable that both the RBA and Australian Treasury use versions of a Phillips curve as their preferred models for forecasting nominal wages growth. 
+
+
+```{r pressure2, echo=FALSE}
+# Regression line of Inflation and Unemployment
+ggplot(merged_data, aes(x = Inflation, y = Unemployment)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linewidth = 1) +
+  labs(title = "Scatterplot with Linear Regression Line",
+       x = "Inflation",
+       y = "Unemployment") +
+  theme_minimal()
+
+```
+
+
+### 4.2 K-nearest neighbour(kNN)
+
+The steps are used in kNN algorithm as the following:
+1. Load the merged_data of dataset.
+2. Split the data.
+3. Standardisation the data
+4. Run the kNN algorithm
+5. Test misclassification rate
+6. Predications
+7. Probabilities.
+
+KNN has a key issue regarding to the sensitive distances to units of measurement. For this reason, all predictors are standardised so that all predictors have a standard deviation of 1.
+
+The misclassification rate is a key metric used to assess the performance of KNN. It represents the proportion of instances that were incorrectly classified by the model compared to the total number of instances. In this section, the misclassification rate when k=5 is 1, it is a clear signal that something might be amiss with our model or data. And it could indicate various issues such as overfitting or model hyperparameters, the value of k=5 might not be appropriate for the data, and different k values should be tried to find the optimal balance between bias and variance.For investigation further, we consider trying use the cross validation to help evaluate the KNN model's performance for different values of k. The model with k = 9 was chosen as it had the lowest RMSE value, indicating better predictive performance. This final model will likely provide more accurate predictions on new, unseen data compared to other evaluated k values.
+
+We also tried to make a ROC curve but come error code Error in multiclass.roc, 'response' must have at least two levels. Therefore, we need more time on investigation for ploting a proper ROC curve and AUC for evaluation. Alternatively, the cross validation, MAE and RMSE are used to evaluate the model.
+
+
+```{r pressure3, echo=FALSE}
+X <- merged_data[, c("InterestRate","GDP","Unemployment")]  
+y <- merged_data$Inflation
+
+
+train_index <- createDataPartition(y, p = 0.8, list = FALSE)
+X_train <- X[train_index,]
+y_train <- y[train_index]
+X_test <- X[-train_index, ]
+y_test <- y[-train_index]
+
+# Standardisation
+train_x_std <- scale(X_train)
+# Get the mean for training data
+mean_train_x <- attr(train_x_std, "scaled:center")
+# Get the standard deviation for each variable in the training data
+std_train_x <- attr(train_x_std, "scaled:scale")
+# Standardised test data.
+test_x_std <- scale(X_test, center = mean_train_x, scale = std_train_x)
+
+# Run the KNN algorithm
+knn_model <- train(y_train ~ ., data = cbind(y_train, train_x_std), method = "knn", trControl = trainControl(method = "cv"))
+# Plot model
+plot(knn_model)
+
+# Predict using the KNN model
+predictions <- predict(knn_model, newdata = data.frame(test_x_std))
+
+
+# Compare predicted values with actual values
+comparison <- data.frame(Actual = y_test, Predicted = predictions)
+
+# Calculate misclassification rate
+miscl_rate <- mean(predictions != y_test)
+print(paste("Misclassification Rate:", miscl_rate))
+
+# kNN prediction without specifying response variable
+yhat_k1 <- knn(train_x_std, test_x_std, y_train, k = 5)
+miscl_k1 <- mean(y_test != yhat_k1)
+print(paste("Misclassification Rate (k=5):", miscl_k1))
+
+# kNN prediction with probability values
+prob_k5 <- knn(train_x_std, test_x_std, y_train, k = 5, prob = TRUE)
+probabilities <- attr(prob_k5, "prob")
+
+```
+
+
+```{r pressure4, echo=FALSE}
+
+# Set up control parameters for cross-validation
+ctrl <- trainControl(method = "cv", number = 5)  # 5-fold cross-validation
+
+# Train KNN model using cross-validation
+knn_model <- train(y_train ~ ., data = cbind(y_train, X_train),
+                   method = "knn",
+                   trControl = ctrl)
+
+# Print the cross-validated results
+print(knn_model)
+
+# Access performance metrics
+cv_results <- knn_model$results
+
+```
+
+### 4.3 AutoRegressive Integrated Moving Average (ARIMA) model
+
+ARIMA is popular method for time series forecasting, the steps are used in ARIMA as the following:
+1. Assuming the time series is stationarity and remain constant over time.
+2. Using AutoCorrelation (ACF) and Partial AutoCorrelation (PACF) plots to identify the appropriate order of autoregressive (AR) and moving average (MA) components of the ARIMA model. The correlation between a time series and its lagged values are measured by ACF, while the correlation between a time series and its lagged values after removing the influence of shorter lags are measured by PACF.
+3. Selecting Model Order.An ARIMA model is denoted as ARIMA(p, d, q), where p is the order of the autoregressive part, d is the order of differencing, and q is the order of the moving average part.
+4. Model Fitting and forecasting.
+5. Model Evaluation.Mean Squared Error (MSE), Root Mean Squared Error (RMSE), Mean Absolute Error (MAE) can be used to assess the model's accuracy.
+
+The time series plot shows an upward trend in the CPI over time, indicating that inflation has a sharp increased since 2020. The ACF and PACF plots have a significant autocorrelation at the first lag, indicating that the data is not stationary and requires differencing.
+
+Based on Autocorrelation and Partial Autocorrelation plots, we found the ACF plot shows a sharp drop and the PACF plot has a slow decay after lag k, then an ARIMA(0,d,q) model might be suitable. The value of d indicates the number of times you need to difference your data to make it stationary.In this section, we choose the order for (0,1,2) based on the above reason.
+
+
+```{r pressure5, echo=FALSE}
+au_inflation <- au_inflation[, -1]
+# Plot time series
+ggplot(data = au_inflation, aes(x = year, y = value)) +
+  geom_line() +
+  labs(title = "CPI Over Time", y = "CPI", x = "Year") +
+  theme_bw()
+
+```
+
+
+```{r pressure6, echo=FALSE}
+univariate_series <- au_inflation[, 2]
+# Plot ACF
+acf(univariate_series, main = "ACF of Inflaion")
+
+# Plot PACF
+pacf(univariate_series, main = "PACF of Inflation")
+
+# Fit ARIMA model
+univariate_series <- au_inflation[, 2]
+
+arima_model <- arima(univariate_series, order = c(0, 1, 2))
+
+summary(arima_model)
+
+```
+
+
+```{r pressure7, echo=FALSE}
+# Generate forecast
+Inflation_fcst <- forecast(arima_model, 5)
+plot(Inflation_fcst) 
+
+```
+
+By analysing the result of ARIMA, the coefficient estimates aren't statistically significant as the s.e. of ma2 is 0.2883. A lower sigma^2 indicates better fit as it will imply less unexplained variability.And Lower error measures (RMSE, MAE, etc.) indicate a better fit to the training data.The ACF1 value close to zero suggests that the model is capturing the correlation patterns well.The prediction for next five years for inflation is 4% and 3% according the model.However, ARIMA only provides one variable prediction, so the multiple time series model can be apply in the next section.
+
+### 4.4 Vector Autoregression (VAR) model
+
+VAR is used for multiple time series variables and also influence each other. The steps are used in ARIMA as the following: 
+1. Stationarity is also important in VAR analysis as ARIMA.
+2. Model Order and lag selection. By determine the appropriate number of lags (p) to include in the model. In this section, we still use the AutoCorrelation Function (ACF) and Partial AutoCorrelation Function (PACF) plots for each variable to identify significant lags.
+3. Model Fitting and forecasting.
+4. Granger Causality Test.To determine whether variables have predictive power for another variable.
+5. Model Diagnostics.Diagnose the VAR model to ensure that the residuals are white noise, indicating that the model captures the underlying relationships well. Check for autocorrelation and heteroscedasticity in the residuals.
+6. Impulse Response Function (IRF). The results of IRF shows how shocks to one variable in a Vector Autoregression (VAR) model impact the other variables over time. 
+
+
+```{r pressure8, echo=FALSE}
+
+# Convert data to a time series object 
+ts_data <- ts(merged_data[,-1])
+
+
+# set up lag_order
+lag_order <- 2
+var_model <- VAR(ts_data, p = lag_order)
+
+# Forecast future values
+forecast_steps <- 12  # Number of steps to forecast
+forecast <- predict(var_model, n.ahead = forecast_steps)
+
+# Create the forecast plot
+par(mar = c(4, 4, 1, 1))  # Adjust the margins 
+plot(forecast)
+
+# Use Granger Causality Test.
+causality(var_model, cause = "Inflation")
+
+```
+The forecast presents the prediction for next 12 years. It can be seen from the plot, inflation and GDP will decline in the next 3 years, interest rate will rise volatility and unemployment will increase.
+
+For the results of both granger causality tests, the p-values are greater than the common significance level of 0.05. This suggests that the evidence against the null hypothesis is not strong enough to conclude that there is a granger causality or instantaneous causality between Inflation and the other variables.
+
+```{r pressure9, echo=FALSE}
+
+# Use Impulse Response Function (IRF) and plot it.
+irf_object <- irf(var_model, n.ahead = 10)
+
+# Plot the IRF 
+plot(irf_object)
+
+```
+
+The IRF result is often presented as a plot that shows the responses of Inflation, GDP and unemployment to a shock in an interest rate. The x-axis represents time after the shock, and the y-axis represents the magnitude of the response or impact.GDP and unemployment from Interest rate shows a positive response, which indicates that the variable's value increases in response to the shock, while a negative response indicates a decrease. IRF helps to assess the direction of causality between variables. If a shock in one variable leads to a significant and persistent response in another variable, it shows a causal relationship. And as the bars are narrow in the above graphs, it indicates more certainty about the response as the above graph. The effects of monetary or fiscal policy shocks on key economic indicators such as inflation with interest rate and GDP normally used by policymakers.
+
+
+## 5. Conclusions
+
+The inflation trend has seen a sharp increase since 2020, while both GDP and interest rates have hit their lowest levels in the past 2 years. The interest rate decrease from 2014 and the GDP remain a low growth rate at the same time.Despite this, the negative relationship between inflation and the unemployment rate in Australia persists, confirming the validity of the Phillips curve.
+
+Three predictive models were used in this report to analyse the dataset. K Nearest Neighbour(KNN), time series model and VAR are presented in section 4. the report model and forecast yearly inflation for the economy of Australia. With the available data, we construct univariate and multivariate time series models including ARIMA and VAR. Consequently, the optimal forecast is selected based on the smallest RMSE, MAE, and Their Inequality coefficient. There is a lower sigma^2 indicates better fit as it will imply less unexplained variability and Lower error measures in ARIMA then the other two models.The ACF1 value of ARIMA close to zero suggests that the model is capturing the correlation patterns well.The best predictive model is ARIMA after the observation and analysis for predicting inflation.In conclusion, The estimated models perform better results is ARIMA. However, VAR model shows a granger causality or instantaneous causality between inflation and the other variables and more certainty relationship for inflation with other variables. For further analysis, we need set up different parameters and evaluate the best model to predict.
+
+
+
+## References:
+
+Atul George Thomas.(2023). Predicting UK CPI Using Machine Learning: A Project on Effectiveness of Random Forest Algorithm. https://www.linkedin.com/pulse/predicting-uk-cpi-using-machine-learning-study-random-george-thomas/.
+
+Avril Coghlan.(2018). A Little Book of R for Time Series. https://media.readthedocs.org/pdf/a-little-book-of-r-for-time-series/latest/a-little-book-of-r-for-time-series.pdf.
+
+Bagus Priambodi & Sarwati Rahayu.2019(1339). Predicting GDP of Indonesia Using K-Nearest Neighbour Regression. https://iopscience.iop.org/article/10.1088/1742-6596/1339/1/012040/pdf.
+
+Claus O. Wilke.(2019).Fundamentals of Data Visualization. https://clauswilke.com/dataviz/index.html/.
+
+David Jacobs,Dilhan Perera & Thomas Williams.(2014) Inflation and the Cost of Living.
+https://www.rba.gov.au/publications/bulletin/2014/mar/pdf/bu-0314-4.pdf.
+
+Frederic S Mishkin. (2022).The Economics of Money,Banking and Fiancial Markets(13th Edition). Pearson.
+
+Gavin Ooft.(2020.Forecasting Monthly Inflation: An Application to Suriname. https://sites.krieger.jhu.edu/iae/files/2020/01/FORECASTING-MONTHLY-INFLATION-AN-APPLICATION-TO-SURINAME.pdf.
+
+Hadley Wickham.(2017).R for Data Science.https://r4ds.hadley.nz/.
+
+The World Bank. (2022).World Development Indicators
+https://databank.worldbank.org/source/world-development-indicators.
+
+Vitor Constancio.(2016). The Challenge of Low Real Interest Rates of Monetary Policy.
+https://www.ecb.europa.eu/press/key/date/2016/html/sp160615.en.html.
+
+
+
+

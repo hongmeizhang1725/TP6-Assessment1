@@ -1,5 +1,5 @@
 ---
-title: "Change in Agricultural Labor and land use"
+title: "Change in Agricultural Labor and Land Use"
 author: "Hongmei Zhang"
 date: "2023-11-15"
 output: html_document
@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(knitr)
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
 library(dplyr)
 library(ggplot2)
@@ -48,7 +48,7 @@ data1 <- data.frame(data)
 The dataset contains `r ncol(data1)` variables and `r nrow(data1)` observations.
 The figure of the code is showing as the following.
 
-```{r, echo=FALSE, out.width='100%', out.height='100%'}
+```{r, echo= TRUE, out.width='100%', out.height='100%'}
 # Display the screenshot of code
 knitr::include_graphics("Image/Screenshot.png")
 
@@ -85,7 +85,6 @@ From this data summary, it can be observed that **Germany** and France have the 
 ## 5. Visualisations
 
 
-
 ```{r figure-plot, fig.cap="Figure 1: Total Land Use vs. Total Labor of Main Agricultural Countries from 1961 to 2019"}
 
 # Create one figure related with research question.
@@ -118,11 +117,52 @@ interactive_plot
 - *The graph illustrates a diverging relationship between agricultural land use and labor: while land use experienced a slow increase until 1990 followed by slight fluctuations and a minor decrease, labor in agriculture showed a marked and consistent decline over the same period.*
 
 
+```{r figure-plot2, fig.cap="Figure 2: Agricutural Labor over 16 countries from 1961 to 2019"}
+
+# Add additional figure and table
+# Agricultural Labor over 16 countries from 1961 to 2019
+p <- ggplot(data1, aes(x = Year, y = labor_index, color = Entity)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Scatter Plot for agricultural labor over 16 countries", 
+       x = "Year", 
+       y = "Labor")
+
+# Convert to a plotly interactive object
+p_interactive <- ggplotly(p, tooltip = c("x", "color"))
+
+# Show the interactive plot
+p_interactive
+
+```
+
+
+
+```{r}
+# Use table to describe the data
+# Summarize data by entity
+summarized_data <- data1 %>%
+  group_by(Entity) %>%
+  summarise(
+    mean_labor = mean(labor_index, na.rm = TRUE),
+    mean_land_use = mean(ag_land_index, na.rm = TRUE),
+    mean_food_supply = mean(food_supply_per_capita, na.rm = TRUE)
+  )
+
+# Create a table with kable
+kable(summarized_data, caption = "Labor, Land Use, and Food Supply by Entity")
+```
+
+- *As shown in figure 2 and above table, reveals significant variations in agricultural labor, land use, and food supply across different countries. Figure 2 indicates a marked decline in agricultural labor in Germany, France, and South Korea, whereas Russia, the UK, the US, Canada, and South Africa experienced a more gradual decrease. In contrast, China and India saw labor increases until 2006 before a subsequent decline, and Mexico showed a consistent rise over time.*
+- *The above table provides a detailed agricultural labor index, shows Germany with the highest average labor, suggesting a substantial agricultural workforce, while Mexico records the lowest. This disparity could be attributed to different agricultural practices and mechanization levels in these countries. In terms of land use, New Zealand leads with the highest average, indicative of extensive agricultural activity, whereas Brazil's lower average land use might reflect its specific agricultural practices and land availability. This diverse agricultural dynamics across countries might be shaped by a myriad of factors including geographical and climatic conditions, technological advancements, and economic policies in the agricultural sector.*
+
+
 ## 6. Conclusions
 
-The analysis of agricultural data from 1961 to 2019 for major agricultural countries reveals significant trends in land use and labor. The data shows a steady increase in land use until 1990, followed by a period of fluctuation and a slight decrease, indicating changes in agricultural practices or policy shifts over the decades. In stark contrast, there is a notable and consistent decline in labor over the same period. This divergence suggests a move towards more efficient or mechanized farming techniques that require fewer workers, a response possibly driven by technological advancements, economic factors, and policy changes in the agricultural sector.
+The analysis of agricultural data for major agricultural countries reveals significant trends in land use and labor. The data shows a steady increase in land use until 1990, followed by a period of fluctuation and a slight decrease, alongside a consistent decline in labor. This suggests a shift towards more efficient, mechanized farming, driven by technological, economic, and policy changes. The substantial labor decrease, despite varying land use trends, indicates a workforce restructuring, potentially due to urban migration and demographic shifts. 
 
-Moreover, the substantial decrease in labor, despite the initially increasing and later fluctuating land use, points to a potential restructuring in the agricultural workforce. This could be due to urban migration, changing demographic patterns, or shifts in the economic attractiveness of agricultural work. 
+Moreover, country-specific data reveals diverse agricultural dynamics. While Germany, France, and South Korea experience significant labor declines, countries like Russia, UK, and US show gradual decreases. In contrast, labor in China and India initially increased before declining, and Mexico shows a consistent rise. These variations suggest differing agricultural practices and levels of mechanization, reflecting a complex agricultural landscape shaped by a multitude of global and local factors.
+
 
 
 
